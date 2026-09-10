@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "App HTTPS + Ory",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "${workspaceFolder}/run-https.sh",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "App HTTP",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm dev",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

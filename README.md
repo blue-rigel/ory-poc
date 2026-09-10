@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ory Proof of Concept
 
 ## Getting Started
 
-First, run the development server:
+Install the dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Local HTTP
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Run the non-root development server at
+[http://localhost:3000](http://localhost:3000):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev
+```
 
-## Learn More
+### Local HTTPS
 
-To learn more about Next.js, take a look at the following resources:
+Before using the local domain, configure wildcard `.test` DNS resolution by
+following [LocalDomain.md](./LocalDomain.md). Verify that `orypoc.test` resolves
+to `127.0.0.1`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Run [https://orypoc.test](https://orypoc.test) and its Ory tunnel together:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+./run-https.sh
+```
 
-## Deploy on Vercel
+The script starts the Ory tunnel as the current user and runs the HTTPS server
+on privileged port 443 through `sudo`. The Ory tunnel defaults to
+`http://localhost:3000` when run separately. To point it at the HTTPS domain:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+ORY_APP_URL=https://orypoc.test ./ory.sh
+```

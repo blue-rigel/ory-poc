@@ -6,4 +6,4 @@ exec ory tunnel \
   --project 7ef85b02-9aba-473a-b5ee-34dc59fd7c5f \
   --workspace 046a0334-5ad8-4cae-b6f9-66102bc73693 \
   --port 4000 \
-  http://localhost:3000
+  "${ORY_APP_URL:-http://localhost:3000}"

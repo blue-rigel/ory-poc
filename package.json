@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:https": "next dev --hostname orypoc.test --port 443 --experimental-https --experimental-https-key .cert/orypoc.test-key.pem --experimental-https-cert .cert/orypoc.test.pem",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

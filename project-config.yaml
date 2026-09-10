@@ -154,17 +154,17 @@ services:
         - /ui/consent
         - /ui/welcome
         - /ui/sessions
-        - http://localhost:3000/auth/error
-        - http://localhost:3000/auth/login
-        - http://localhost:3000/auth/google/callback
-        - http://localhost:3000/auth/recovery
-        - http://localhost:3000/auth/settings
-        - http://localhost:3000/auth/registration
-        - http://localhost:3000/auth/verification
+        - https://orypoc.test/auth/error
+        - https://orypoc.test/auth/login
+        - https://orypoc.test/auth/google/callback
+        - https://orypoc.test/auth/recovery
+        - https://orypoc.test/auth/settings
+        - https://orypoc.test/auth/registration
+        - https://orypoc.test/auth/verification
         default_browser_return_url: /session
         flows:
           error:
-            ui_url: http://localhost:3000/auth/error
+            ui_url: https://orypoc.test/auth/error
           login:
             after:
               code:
@@ -187,7 +187,7 @@ services:
             before:
               hooks: []
             style: identifier_first
-            ui_url: http://localhost:3000/auth/login
+            ui_url: https://orypoc.test/auth/login
           logout:
             after: {}
           recovery:
@@ -197,7 +197,7 @@ services:
               hooks: []
             enabled: true
             notify_unknown_recipients: false
-            ui_url: http://localhost:3000/auth/recovery
+            ui_url: https://orypoc.test/auth/recovery
             use: code
           registration:
             after:
@@ -225,7 +225,7 @@ services:
             enable_legacy_one_step: true
             login_hints: true
             style: unified
-            ui_url: http://localhost:3000/auth/registration
+            ui_url: https://orypoc.test/auth/registration
           settings:
             after:
               hooks: []
@@ -249,7 +249,7 @@ services:
               hooks: []
             privileged_session_max_age: 15m0s
             required_aal: highest_available
-            ui_url: http://localhost:3000/auth/settings
+            ui_url: https://orypoc.test/auth/settings
           verification:
             after:
               hooks: []
@@ -257,7 +257,7 @@ services:
               hooks: []
             enabled: true
             notify_unknown_recipients: false
-            ui_url: http://localhost:3000/auth/verification
+            ui_url: https://orypoc.test/auth/verification
             use: code
         methods:
           b2b:
@@ -281,7 +281,7 @@ services:
           lookup_secret: {}
           oidc:
             config:
-              base_redirect_uri: http://localhost:3000/
+              base_redirect_uri: https://orypoc.test/
               providers:
               - account_linking_mode: confirm_with_existing_credential
                 client_id: GOOGLE-CLIENT-ID
