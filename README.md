@@ -23,6 +23,26 @@ Before using the local domain, configure wildcard `.test` DNS resolution by
 following [LocalDomain.md](./LocalDomain.md). Verify that `orypoc.test` resolves
 to `127.0.0.1`.
 
+Install `mkcert` and trust its local certificate authority:
+
+```bash
+brew install mkcert
+mkcert -install
+```
+
+Generate the certificate and private key expected by `pnpm dev:https`:
+
+```bash
+mkdir -p .cert
+mkcert \
+  -cert-file .cert/orypoc.test.pem \
+  -key-file .cert/orypoc.test-key.pem \
+  orypoc.test
+```
+
+The `.cert` directory is excluded from Git. Keep the private key local and do
+not commit it.
+
 Run [https://orypoc.test](https://orypoc.test) and its Ory tunnel together:
 
 ```bash
