@@ -1,3 +1,5 @@
+import { auth, signIn, signOut } from "../auth";
+
 const markets = [
   { name: "STI", value: "3,928.41", change: "+0.42%" },
   { name: "NIKKEI", value: "42,568.20", change: "+0.68%" },
@@ -19,7 +21,9 @@ function MenuIcon() {
   return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h18M3 17h18"/></svg>;
 }
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
   return (
     <>
       <header>
@@ -27,7 +31,19 @@ export default function Home() {
         <div className="shell masthead">
           <button className="icon-button" type="button" aria-label="Open menu"><MenuIcon /></button>
           <a className="bt-logo" href="#" aria-label="The Business Times home"><span>THE BUSINESS TIMES</span><small>BUSINESS INTELLIGENCE FOR DECISION MAKERS</small></a>
-          <div className="header-actions"><button className="icon-button" type="button" aria-label="Search"><SearchIcon /></button><button className="login-button" type="button">Log in</button></div>
+          <div className="header-actions">
+            <button className="icon-button" type="button" aria-label="Search"><SearchIcon /></button>
+            {session?.user ? (
+              <form action={async () => { "use server"; await signOut({ redirectTo: "/" }); }}>
+                <span className="auth-user">{session.user.name ?? session.user.email}</span>
+                <button className="login-button" type="submit">Log out</button>
+              </form>
+            ) : (
+              <form action={async () => { "use server"; await signIn("ory", { redirectTo: "/" }); }}>
+                <button className="login-button" type="submit">Log in</button>
+              </form>
+            )}
+          </div>
         </div>
         <nav className="primary-nav"><div className="shell nav-scroll">{['Breaking', 'Singapore', 'International', 'Companies & Markets', 'Property', 'Startups & Tech', 'Opinion', 'Lifestyle', 'BT Luxe'].map((item) => <a href="#" key={item}>{item}</a>)}</div></nav>
       </header>

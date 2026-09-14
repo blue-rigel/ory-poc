@@ -24,6 +24,8 @@ button { font: inherit; }
 .icon-button { width: 40px; height: 40px; padding: 9px; border: 0; background: transparent; color: var(--blue); cursor: pointer; }
 .icon-button svg { width: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .header-actions { justify-self: end; display: flex; align-items: center; gap: 12px; }
+.header-actions form { display: flex; align-items: center; gap: 10px; }
+.auth-user { max-width: 180px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .login-button { border: 1px solid var(--blue); padding: 9px 19px; color: var(--blue); background: white; font-size: 13px; font-weight: 700; cursor: pointer; }
 .main-nav { border-block: 1px solid var(--line); }
 .nav-scroll { height: 46px; display: flex; align-items: center; justify-content: center; gap: clamp(20px, 3vw, 42px); overflow-x: auto; font-family: Georgia, serif; font-size: 15px; font-weight: 700; }
@@ -81,6 +83,7 @@ footer p { font-size: 12px; }
   .st-mark { width: 38px; height: 38px; font-size: 18px; }
   .st-name { font-size: 18px; letter-spacing: -.8px; }
   .header-actions .icon-button { display: none; }
+  .auth-user { display: none; }
   .login-button { padding: 8px 12px; }
   .ad-space { height: 70px; }
   .lead-grid, .card-grid { grid-template-columns: 1fr; }

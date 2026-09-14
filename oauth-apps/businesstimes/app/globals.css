@@ -15,6 +15,8 @@ button { font: inherit; }
 .icon-button { width: 40px; height: 40px; padding: 9px; border: 0; background: transparent; cursor: pointer; }
 .icon-button svg { width: 100%; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
 .header-actions { justify-self: end; display: flex; align-items: center; gap: 10px; }
+.header-actions form { display: flex; align-items: center; gap: 10px; }
+.auth-user { max-width: 180px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .login-button { padding: 9px 20px; border: 1px solid #202020; background: white; font-size: 13px; font-weight: 700; cursor: pointer; }
 .primary-nav { color: white; background: #202020; }
 .nav-scroll { height: 48px; display: flex; align-items: center; justify-content: center; gap: clamp(17px, 2.2vw, 35px); overflow-x: auto; font-size: 13px; font-weight: 700; white-space: nowrap; }
@@ -81,7 +83,7 @@ footer p { font-size: 12px; }
   .utility-inner div a { display: none; }
   .masthead { grid-template-columns: 35px 1fr auto; }
   .bt-logo span { font-size: 21px; letter-spacing: -1px; }.bt-logo small { display: none; }
-  .header-actions .icon-button { display: none; }.login-button { padding: 8px 12px; }
+  .header-actions .icon-button, .auth-user { display: none; }.login-button { padding: 8px 12px; }
   .ticker-inner div { padding: 0 12px; }
   .ad-space { height: 70px; }
   .page-title p { display: none; }

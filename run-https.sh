@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ -f .env.oauth.local ]]; then
+  set -a
+  source .env.oauth.local
+  set +a
+fi
+
+: "${ORY_ISSUER:=https://cranky-bose-9s8hbv5let.projects.oryapis.com}"
+
 cleanup() {
   local pid
   for pid in "${HTTPS_PROXY_PID:-}" "${ST_APP_PID:-}" "${BT_APP_PID:-}" "${ORY_APP_PID:-}" "${ORY_TUNNEL_PID:-}"; do
@@ -13,7 +21,7 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-ORY_APP_URL=https://orypoc.test ./ory.sh &
+ORY_APP_URL=http://127.0.0.1:3000 ORY_TUNNEL_URL=https://orypoc.test ./ory.sh &
 ORY_TUNNEL_PID=$!
 
 CERT_DIR=.cert
@@ -35,9 +43,17 @@ fi
 "$(command -v pnpm)" dev:local &
 ORY_APP_PID=$!
 
+AUTH_SECRET="${ST_AUTH_SECRET:-}" \
+ORY_ISSUER="$ORY_ISSUER" \
+ORY_CLIENT_ID="${ST_ORY_CLIENT_ID:-}" \
+ORY_CLIENT_SECRET="${ST_ORY_CLIENT_SECRET:-}" \
 "$(command -v pnpm)" --filter @oauth-apps/straitstimes dev --hostname 127.0.0.1 --port 3001 &
 ST_APP_PID=$!
 
+AUTH_SECRET="${BT_AUTH_SECRET:-}" \
+ORY_ISSUER="$ORY_ISSUER" \
+ORY_CLIENT_ID="${BT_ORY_CLIENT_ID:-}" \
+ORY_CLIENT_SECRET="${BT_ORY_CLIENT_SECRET:-}" \
 "$(command -v pnpm)" --filter @oauth-apps/businesstimes dev --hostname 127.0.0.1 --port 3002 &
 BT_APP_PID=$!
 

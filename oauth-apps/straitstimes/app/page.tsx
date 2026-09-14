@@ -1,3 +1,5 @@
+import { auth, signIn, signOut } from "../auth";
+
 const stories = [
   {
     section: "Singapore",
@@ -41,7 +43,9 @@ function MenuIcon() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+
   return (
     <>
       <div className="edition-bar">
@@ -60,7 +64,16 @@ export default function Home() {
           </a>
           <div className="header-actions">
             <button className="icon-button" type="button" aria-label="Search"><SearchIcon /></button>
-            <button className="login-button" type="button">Log in</button>
+            {session?.user ? (
+              <form action={async () => { "use server"; await signOut({ redirectTo: "/" }); }}>
+                <span className="auth-user">{session.user.name ?? session.user.email}</span>
+                <button className="login-button" type="submit">Log out</button>
+              </form>
+            ) : (
+              <form action={async () => { "use server"; await signIn("ory", { redirectTo: "/" }); }}>
+                <button className="login-button" type="submit">Log in</button>
+              </form>
+            )}
           </div>
         </div>
         <nav className="main-nav" aria-label="Main navigation">

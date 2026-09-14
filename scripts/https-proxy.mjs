@@ -3,7 +3,7 @@ import https from "node:https";
 import httpProxy from "http-proxy";
 
 const routes = new Map([
-  ["orypoc.test", "http://127.0.0.1:3000"],
+  ["orypoc.test", "http://127.0.0.1:4000"],
   ["straitstimes.test", "http://127.0.0.1:3001"],
   ["businesstimes.test", "http://127.0.0.1:3002"],
 ]);
