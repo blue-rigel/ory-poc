@@ -36,6 +36,8 @@ type FlowCardProps = {
 };
 
 export function FlowCard({ flowId, flowType, ui, title, description, footer }: FlowCardProps) {
+  const nodeGroups = flowType === "settings" ? groupNodes(ui.nodes as UiNode[]) : null;
+
   return (
     <div className="mx-auto mt-16 w-full max-w-xl px-4">
       <FlowSession flowId={flowId} flowType={flowType} />
@@ -45,14 +47,37 @@ export function FlowCard({ flowId, flowType, ui, title, description, footer }: F
           <CardDescription>{description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={ui.action} method={ui.method} className="space-y-6">
+          <div className="space-y-6">
             {ui.messages?.map((message) => (
               <Message key={message.id} message={message} />
             ))}
-            {ui.nodes.map((node, index) => (
-              <FlowNode key={`${node.group}-${index}`} node={node as UiNode} />
-            ))}
-          </form>
+            {nodeGroups ? (
+              nodeGroups.map(([group, nodes]) => (
+                <form
+                  key={group}
+                  action={ui.action}
+                  method={ui.method}
+                  className="space-y-4 rounded-lg border p-4"
+                >
+                  <div>
+                    <h2 className="font-medium">{settingsGroupTitle(group)}</h2>
+                    <p className="text-sm text-muted-foreground">
+                      {settingsGroupDescription(group)}
+                    </p>
+                  </div>
+                  {nodes.map((node, index) => (
+                    <FlowNode key={`${node.group}-${index}`} node={node} />
+                  ))}
+                </form>
+              ))
+            ) : (
+              <form action={ui.action} method={ui.method} className="space-y-6">
+                {ui.nodes.map((node, index) => (
+                  <FlowNode key={`${node.group}-${index}`} node={node as UiNode} />
+                ))}
+              </form>
+            )}
+          </div>
         </CardContent>
         {footer && (
           <CardFooter>
@@ -64,6 +89,53 @@ export function FlowCard({ flowId, flowType, ui, title, description, footer }: F
       </Card>
     </div>
   );
+}
+
+function groupNodes(nodes: UiNode[]) {
+  const sharedNodes = nodes.filter((node) => node.group === "default");
+  const groups = new Map<string, UiNode[]>();
+
+  for (const node of nodes) {
+    if (node.group === "default") continue;
+    groups.set(node.group, [...(groups.get(node.group) ?? []), node]);
+  }
+
+  if (groups.size === 0) {
+    return [["default", sharedNodes] as const];
+  }
+
+  return Array.from(groups, ([group, groupNodes]) => [
+    group,
+    [...sharedNodes, ...groupNodes],
+  ] as const);
+}
+
+function settingsGroupTitle(group: string) {
+  const titles: Record<string, string> = {
+    profile: "Profile",
+    oidc: "Social accounts",
+    password: "Password",
+    totp: "Authenticator app",
+    lookup_secret: "Recovery codes",
+    webauthn: "Security keys",
+    passkey: "Passkeys",
+  };
+
+  return titles[group] ?? humanize(group);
+}
+
+function settingsGroupDescription(group: string) {
+  const descriptions: Record<string, string> = {
+    profile: "Update the profile details stored with your identity.",
+    oidc: "Link or unlink social sign-in providers.",
+    password: "Set or change the password for this account.",
+    totp: "Manage time-based one-time password authentication.",
+    lookup_secret: "Manage one-time recovery codes.",
+    webauthn: "Manage registered WebAuthn security keys.",
+    passkey: "Manage passkeys registered to this account.",
+  };
+
+  return descriptions[group] ?? "Manage this authentication method.";
 }
 
 function FlowNode({ node }: { node: UiNode }) {

@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 type AuthState =
   | { status: "loading" }
   | { status: "anonymous" }
-  | { status: "authenticated"; currentSessionId: string };
+  | { status: "authenticated"; currentSession: Session };
 
 export default function SessionsPage() {
   const [auth, setAuth] = useState<AuthState>({ status: "loading" });
@@ -34,9 +34,21 @@ export default function SessionsPage() {
       try {
         const { data } = await oryFrontend.toSession();
         if (cancelled) return;
-        setAuth({ status: "authenticated", currentSessionId: data.id });
-        const { data: list } = await oryFrontendSessions.listMySessions();
-        if (!cancelled) setSessions(list);
+        setAuth({ status: "authenticated", currentSession: data });
+        setSessions([data]);
+
+        try {
+          const { data: list } = await oryFrontendSessions.listMySessions();
+          if (!cancelled) setSessions([data, ...list]);
+        } catch (err) {
+          if (!cancelled) {
+            setError(
+              isAxiosError(err)
+                ? err.response?.data?.error?.message ?? "Failed to load other sessions."
+                : "Failed to load other sessions.",
+            );
+          }
+        }
         return;
       } catch {
         if (!cancelled) setAuth({ status: "anonymous" });
@@ -104,7 +116,7 @@ export default function SessionsPage() {
             <p className="text-muted-foreground">No active sessions.</p>
           )}
           {sessions?.map((session) => {
-            const isCurrent = session.id === auth.currentSessionId;
+            const isCurrent = session.id === auth.currentSession.id;
             const device = session.devices?.[0];
             return (
               <div
