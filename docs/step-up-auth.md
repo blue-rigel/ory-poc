@@ -40,11 +40,6 @@ To make Kratos verify a stronger factor on an *existing* session:
 - **Browser flow**: redirect to the login page with `?aal=aal2&refresh=true`.
   Kratos detects the user already has an AAL1 session and only asks for the
   missing second factor — not a fresh login.
-- **Native flow**: call `createNativeLoginFlow({ aal: "aal2", xSessionToken })`.
-  Same idea, but you get back a `LoginFlow` object with UI nodes you render
-  yourself, and you submit the chosen method (e.g. `totp`) against that flow
-  with the same session token. The session token itself doesn't change — its
-  underlying session just gets upgraded to AAL2.
 
 ### Declarative step-up
 
@@ -85,7 +80,7 @@ own flows. Instead, the app does its own **static per-route AAL assessment**:
   and compares the session's current level against the requirement.
 
 - [`app/sensitive/page.tsx`](../app/sensitive/page.tsx) is the protected demo
-  page. On load it calls `oryFrontendNative.toSession({ xSessionToken })` and
+  page. On load it calls `oryFrontend.toSession()` using the browser session cookie and
   runs the assessment. The page renders the *inputs to the assessment*
   directly, so the decision isn't a black box:
   - **Required AAL** — from `REQUIRED_AAL_ROUTES.sensitive`
@@ -106,31 +101,23 @@ own flows. Instead, the app does its own **static per-route AAL assessment**:
   body. The page treats that specific error as "step-up required" (not "not
   logged in") and still renders the assessment panel and step-up button.
 
-- [`app/login-native/step-up/page.tsx`](../app/login-native/step-up/page.tsx)
-  performs the actual step-up, using the native flow for full control over
-  the request/response (rather than delegating to Ory's hosted login UI):
-  1. Reads the existing session token from `localStorage`.
-  2. Calls `createNativeLoginFlow({ aal: "aal2", xSessionToken })`. Because
-     the token is already at AAL1, Kratos returns a flow containing only the
-     missing second-factor UI nodes (e.g. the TOTP `totp_code` input) —
-     first factor is already satisfied, so it's not asked again.
-  3. Renders that input and lets the user submit their TOTP code via
-     `updateLoginFlow({ flow: flow.id, xSessionToken, updateLoginFlowBody: { method: "totp", totp_code } })`.
-  4. On success, the *same* session token now resolves to a session with
-     `authenticator_assurance_level: "aal2"` — the user is sent back to the
-     originally requested page (`?returnTo=`).
+- [`app/login/page.tsx`](../app/login/page.tsx) renders both normal password
+  login nodes and the TOTP nodes returned by an AAL2 browser flow. The step-up
+  button starts `/self-service/login/browser?refresh=true&aal=aal2`; Ory keeps
+  the existing cookie session, redirects back to `/login?flow=...`, and then
+  returns the user to the requested application route after verification.
 
 ## Manual test script
 
 1. `npm run dev`.
-2. Go to `/login-native`, register a new account (password only → AAL1).
+2. Go to `/login`, register a new account (password only → AAL1).
 3. Go to `/profile` — confirm you're authenticated.
 4. Go to `/sensitive` — assessment shows `aal1` vs required `aal2`,
    sensitive content is hidden, "Step up to aal2" button is shown.
 5. Go to `/auth/settings` (Ory-hosted UI, itself AAL2-gated by
    `required_aal`) and enroll a TOTP authenticator, if not already enrolled.
-6. From `/sensitive`, click "Step up to aal2" → lands on
-   `/login-native/step-up`, enter the current TOTP code, submit.
+6. From `/sensitive`, click "Step up to aal2". The browser flow returns to
+   `/login`; enter the current TOTP code and submit.
 7. Redirected back to `/sensitive` — assessment now shows `aal2`, PASS, and
    the sensitive content renders. `authentication_methods` lists both
    `password` and `totp`.

@@ -9,8 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { oryFrontendNative } from "@/lib/ory-sdk";
-import { ORY_SESSION_TOKEN_KEY } from "@/app/login-native/page";
+import { oryFrontend } from "@/lib/ory-sdk";
 import { hasRequiredAal, REQUIRED_AAL_ROUTES } from "@/lib/step-up";
 import type { Session } from "@ory/client";
 import { isAxiosError } from "axios";
@@ -35,14 +34,8 @@ export default function SensitivePage() {
     let cancelled = false;
 
     async function loadSession() {
-      const token = window.localStorage.getItem(ORY_SESSION_TOKEN_KEY);
-      if (!token) {
-        if (!cancelled) setState({ status: "anonymous" });
-        return;
-      }
-
       try {
-        const { data } = await oryFrontendNative.toSession({ xSessionToken: token });
+        const { data } = await oryFrontend.toSession();
         if (!cancelled) setState({ status: "authenticated", session: data });
       } catch (err) {
         const isAalError = isAxiosError(err) && err.response?.data?.error?.id === "session_aal2_required";
@@ -65,7 +58,7 @@ export default function SensitivePage() {
       <div className="w-1/2 m-auto mt-16 text-center">
         <p className="text-muted-foreground mb-4">You are not logged in.</p>
         <Button asChild>
-          <Link href="/login-native">Log in (native)</Link>
+          <Link href="/login?return_to=/sensitive">Log in</Link>
         </Button>
       </div>
     );
@@ -89,7 +82,7 @@ export default function SensitivePage() {
           </CardContent>
           <CardFooter>
             <Button asChild>
-              <Link href={`/login-native/step-up?returnTo=${encodeURIComponent("/sensitive")}`}>
+              <Link href="/self-service/login/browser?refresh=true&aal=aal2&return_to=/sensitive">
                 Step up to {REQUIRED_AAL}
               </Link>
             </Button>
@@ -133,7 +126,7 @@ export default function SensitivePage() {
         {!stepUpOk && (
           <CardFooter>
             <Button asChild>
-              <Link href={`/login-native/step-up?returnTo=${encodeURIComponent("/sensitive")}`}>
+              <Link href="/self-service/login/browser?refresh=true&aal=aal2&return_to=/sensitive">
                 Step up to {REQUIRED_AAL}
               </Link>
             </Button>

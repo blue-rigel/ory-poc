@@ -7,14 +7,10 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Lock, Monitor, ShieldCheck, Smartphone, Trash2, Users, Network } from "lucide-react";
+import { Lock, LogIn, Monitor, ShieldCheck, Users, Network } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
-  const clearCache = () => {
-    localStorage.clear();
-  };
-
   return (
     <section className="flex justify-center">
       <Card className="w-full max-w-2xl mt-16">
@@ -32,12 +28,12 @@ export default function Home() {
               variant="outline"
               className="h-14 justify-start gap-3 text-left bg-transparent"
             >
-              <Link href="/login-native">
-                <Smartphone className="h-5 w-5 text-green-600" />
+              <Link href="/login">
+                <LogIn className="h-5 w-5 text-green-600" />
                 <div>
-                  <div className="font-medium">Email/Password Login (Native)</div>
+                  <div className="font-medium">Email/Password Login</div>
                   <div className="text-sm text-muted-foreground">
-                    Direct API flow, token-based session
+                    Custom UI with Ory browser flow
                   </div>
                 </div>
               </Link>
@@ -125,16 +121,8 @@ export default function Home() {
           </div>
         </CardContent>
 
-        <CardFooter className="justify-center">
-          <Button
-            onClick={clearCache}
-            variant="ghost"
-            size="sm"
-            className="gap-2 text-muted-foreground hover:text-foreground"
-          >
-            <Trash2 className="h-4 w-4" />
-            Clear Local Storage
-          </Button>
+        <CardFooter className="justify-center text-sm text-muted-foreground">
+          Authentication uses Ory&apos;s first-party browser session cookie.
         </CardFooter>
       </Card>
     </section>

@@ -5,7 +5,7 @@ const config = {
     default_redirect_url: "/profile",
     enabled_locales: ["en"],
     error_ui_url: "/auth/error",
-    login_ui_url: "/auth/login",
+    login_ui_url: "/login",
     registration_ui_url: "/auth/registration",
     recovery_ui_url: "/auth/recovery",
     recovery_enabled: true,
@@ -13,7 +13,7 @@ const config = {
     settings_ui_url: "/auth/settings",
     verification_ui_url: "/auth/verification",
     verification_enabled: true,
-    locale_behavior: "force_default",
+    locale_behavior: "force_default" as const,
     translations: [],
   },
 };

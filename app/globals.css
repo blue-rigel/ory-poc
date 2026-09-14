@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@ory/elements-react/theme/styles.css";
 
 @custom-variant dark (&:is(.dark *)) (@media (prefers-color-scheme: dark));
 
@@ -122,32 +121,4 @@
   body {
     @apply bg-background text-foreground;
   }
-}
-
-/* This app is dark-mode only, but @ory/elements-react ships a light-mode-only
-   theme. Overriding its --ui-* token scale didn't take effect reliably, so
-   instead force the text/background/border utility classes it actually
-   renders directly, scoped to its .ory-elements wrapper. */
-.ory-elements {
-  --interface-foreground-default-primary: #f8fafc !important;
-  --interface-foreground-default-secondary: #cbd5e1 !important;
-  --interface-foreground-default-tertiary: #94a3b8 !important;
-  --interface-foreground-default-inverted: #020617 !important;
-  --interface-background-default-primary: #0f172a !important;
-  --interface-background-default-primary-hover: #1e293b !important;
-  --interface-background-default-secondary: #1e293b !important;
-  --interface-background-default-secondary-hover: #334155 !important;
-  --interface-background-default-tertiary: #334155 !important;
-  --interface-background-default-tertiary-hover: #475569 !important;
-  --interface-background-default-inverted: #f8fafc !important;
-  --interface-background-default-inverted-hover: #e2e8f0 !important;
-  --interface-border-default-primary: #334155 !important;
-  --interface-border-default-inverted: #cbd5e1 !important;
-  --input-foreground-primary: #f8fafc !important;
-  --input-foreground-secondary: #cbd5e1 !important;
-  --input-foreground-tertiary: #94a3b8 !important;
-  --input-background-default: #0f172a !important;
-  --input-background-hover: #1e293b !important;
-  --input-border-default: #334155 !important;
-  --input-border-hover: #475569 !important;
 }

@@ -1,6 +1,6 @@
-import { Recovery } from "@ory/elements-react/theme";
 import { getRecoveryFlow, OryPageParams } from "@ory/nextjs/app";
 
+import { FlowCard } from "@/components/ory/flow-card";
 import config from "@/ory.config";
 
 export default async function RecoveryPage(props: OryPageParams) {
@@ -10,9 +10,5 @@ export default async function RecoveryPage(props: OryPageParams) {
     return null;
   }
 
-  return (
-    <div className="flex justify-center mt-16">
-      <Recovery flow={flow} config={config} />
-    </div>
-  );
+  return <FlowCard ui={flow.ui} title="Recover account" description="Use your email or recovery code to regain access." footer={{ href: "/login", label: "Back to login" }} />;
 }

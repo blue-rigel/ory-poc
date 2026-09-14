@@ -70,7 +70,7 @@ export default function SsoAppA() {
         <CardFooter className="gap-2">
           {state.status !== "authenticated" && (
             <Button asChild>
-              <Link href="/auth/login">Log in</Link>
+              <Link href="/login">Log in</Link>
             </Button>
           )}
           <Button asChild variant="outline">

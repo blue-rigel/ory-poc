@@ -9,16 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { oryFrontend, oryFrontendNative } from "@/lib/ory-sdk";
+import { oryFrontend } from "@/lib/ory-sdk";
 import type { Session } from "@ory/client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ORY_SESSION_TOKEN_KEY } from "@/app/login-native/page";
 
 type AuthState =
   | { status: "loading" }
   | { status: "anonymous" }
-  | { status: "authenticated"; session: Session; viaToken: boolean };
+  | { status: "authenticated"; session: Session };
 
 export default function ProfilePage() {
   const [state, setState] = useState<AuthState>({ status: "loading" });
@@ -29,24 +28,10 @@ export default function ProfilePage() {
     async function loadSession() {
       try {
         const { data } = await oryFrontend.toSession();
-        if (!cancelled) setState({ status: "authenticated", session: data, viaToken: false });
-        return;
+        if (!cancelled) setState({ status: "authenticated", session: data });
       } catch {
-        // fall through to token-based check
+        if (!cancelled) setState({ status: "anonymous" });
       }
-
-      const token = window.localStorage.getItem(ORY_SESSION_TOKEN_KEY);
-      if (token) {
-        try {
-          const { data } = await oryFrontendNative.toSession({ xSessionToken: token });
-          if (!cancelled) setState({ status: "authenticated", session: data, viaToken: true });
-          return;
-        } catch {
-          // token invalid/expired
-        }
-      }
-
-      if (!cancelled) setState({ status: "anonymous" });
     }
 
     loadSession();
@@ -57,12 +42,6 @@ export default function ProfilePage() {
 
   async function handleLogout() {
     if (state.status !== "authenticated") return;
-
-    if (state.viaToken) {
-      window.localStorage.removeItem(ORY_SESSION_TOKEN_KEY);
-      window.location.href = "/";
-      return;
-    }
 
     const { data } = await oryFrontend.createBrowserLogoutFlow();
     window.location.href = data.logout_url;
@@ -77,7 +56,7 @@ export default function ProfilePage() {
       <div className="w-1/2 m-auto mt-16 text-center">
         <p className="text-muted-foreground mb-4">You are not logged in.</p>
         <Button asChild>
-          <Link href="/">Back to home</Link>
+          <Link href="/login?return_to=/profile">Log in</Link>
         </Button>
       </div>
     );
@@ -91,9 +70,7 @@ export default function ProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle>User Profile</CardTitle>
-          <CardDescription>
-            Session established via {state.viaToken ? "native (token) flow" : "browser (cookie) flow"}
-          </CardDescription>
+          <CardDescription>Session established via the Ory browser flow.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <Row label="Identity ID" value={identity?.id} />

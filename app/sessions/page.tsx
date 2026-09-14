@@ -10,17 +10,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { oryFrontend, oryFrontendNative, oryFrontendSessions } from "@/lib/ory-sdk";
+import { oryFrontend, oryFrontendSessions } from "@/lib/ory-sdk";
 import type { Session } from "@ory/client";
 import { isAxiosError } from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ORY_SESSION_TOKEN_KEY } from "@/app/login-native/page";
 
 type AuthState =
   | { status: "loading" }
   | { status: "anonymous" }
-  | { status: "authenticated"; currentSessionId: string; viaToken: boolean; token?: string };
+  | { status: "authenticated"; currentSessionId: string };
 
 export default function SessionsPage() {
   const [auth, setAuth] = useState<AuthState>({ status: "loading" });
@@ -35,29 +34,13 @@ export default function SessionsPage() {
       try {
         const { data } = await oryFrontend.toSession();
         if (cancelled) return;
-        setAuth({ status: "authenticated", currentSessionId: data.id, viaToken: false });
+        setAuth({ status: "authenticated", currentSessionId: data.id });
         const { data: list } = await oryFrontendSessions.listMySessions();
         if (!cancelled) setSessions(list);
         return;
       } catch {
-        // fall through to token-based check
+        if (!cancelled) setAuth({ status: "anonymous" });
       }
-
-      const token = window.localStorage.getItem(ORY_SESSION_TOKEN_KEY);
-      if (token) {
-        try {
-          const { data } = await oryFrontendNative.toSession({ xSessionToken: token });
-          if (cancelled) return;
-          setAuth({ status: "authenticated", currentSessionId: data.id, viaToken: true, token });
-          const { data: list } = await oryFrontendNative.listMySessions({ xSessionToken: token });
-          if (!cancelled) setSessions(list);
-          return;
-        } catch {
-          // token invalid/expired
-        }
-      }
-
-      if (!cancelled) setAuth({ status: "anonymous" });
     }
 
     load();
@@ -72,11 +55,7 @@ export default function SessionsPage() {
     setRevokingId(id);
 
     try {
-      if (auth.viaToken) {
-        await oryFrontendNative.disableMySession({ id, xSessionToken: auth.token });
-      } else {
-        await oryFrontendSessions.disableMySession({ id });
-      }
+      await oryFrontendSessions.disableMySession({ id });
       setSessions((prev) => prev?.filter((s) => s.id !== id) ?? null);
     } catch (err) {
       setError(
@@ -98,7 +77,7 @@ export default function SessionsPage() {
       <div className="w-1/2 m-auto mt-16 text-center">
         <p className="text-muted-foreground mb-4">You are not logged in.</p>
         <Button asChild>
-          <Link href="/">Back to home</Link>
+          <Link href="/login?return_to=/sessions">Log in</Link>
         </Button>
       </div>
     );

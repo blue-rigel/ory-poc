@@ -1,6 +1,6 @@
-import { Verification } from "@ory/elements-react/theme";
 import { getVerificationFlow, OryPageParams } from "@ory/nextjs/app";
 
+import { FlowCard } from "@/components/ory/flow-card";
 import config from "@/ory.config";
 
 export default async function VerificationPage(props: OryPageParams) {
@@ -10,9 +10,5 @@ export default async function VerificationPage(props: OryPageParams) {
     return null;
   }
 
-  return (
-    <div className="flex justify-center mt-16">
-      <Verification flow={flow} config={config} />
-    </div>
-  );
+  return <FlowCard ui={flow.ui} title="Verify account" description="Confirm your email address to finish setting up your account." />;
 }
