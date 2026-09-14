@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Globe, Lock, Mail, Monitor, ShieldCheck, Smartphone, Trash2, Users, Network } from "lucide-react";
+import { Lock, Monitor, ShieldCheck, Smartphone, Trash2, Users, Network } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -32,44 +32,12 @@ export default function Home() {
               variant="outline"
               className="h-14 justify-start gap-3 text-left bg-transparent"
             >
-              <Link href="/auth/login">
-                <Mail className="h-5 w-5 text-blue-600" />
-                <div>
-                  <div className="font-medium">Email/Password Login (Browser)</div>
-                  <div className="text-sm text-muted-foreground">
-                    Ory hosted-UI flow, cookie-based session
-                  </div>
-                </div>
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="outline"
-              className="h-14 justify-start gap-3 text-left bg-transparent"
-            >
               <Link href="/login-native">
                 <Smartphone className="h-5 w-5 text-green-600" />
                 <div>
                   <div className="font-medium">Email/Password Login (Native)</div>
                   <div className="text-sm text-muted-foreground">
                     Direct API flow, token-based session
-                  </div>
-                </div>
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="outline"
-              className="h-14 justify-start gap-3 text-left bg-transparent"
-            >
-              <Link href="/auth/google">
-                <Globe className="h-5 w-5 text-red-600" />
-                <div>
-                  <div className="font-medium">Continue with Google</div>
-                  <div className="text-sm text-muted-foreground">
-                    Social sign-in via Ory
                   </div>
                 </div>
               </Link>
