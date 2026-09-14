@@ -24,17 +24,21 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FlowSession, type OryFlowType } from "@/components/ory/flow-session";
 
 type FlowCardProps = {
+  flowId: string;
+  flowType: OryFlowType;
   ui: UiContainer;
   title: string;
   description: string;
   footer?: { href: string; label: string };
 };
 
-export function FlowCard({ ui, title, description, footer }: FlowCardProps) {
+export function FlowCard({ flowId, flowType, ui, title, description, footer }: FlowCardProps) {
   return (
     <div className="mx-auto mt-16 w-full max-w-xl px-4">
+      <FlowSession flowId={flowId} flowType={flowType} />
       <Card>
         <CardHeader>
           <CardTitle>{title}</CardTitle>

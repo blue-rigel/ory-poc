@@ -2,10 +2,16 @@ import { getLoginFlow, type OryPageParams } from "@ory/nextjs/app";
 import type { UiNodeInputAttributes } from "@ory/client";
 
 import { FlowCard } from "@/components/ory/flow-card";
+import { FlowBootstrap } from "@/components/ory/flow-session";
 import config from "@/ory.config";
 
 export default async function LoginPage(props: OryPageParams) {
-  const flow = await getLoginFlow(config, props.searchParams);
+  const searchParams = await props.searchParams;
+  if (!searchParams.flow) {
+    return <FlowBootstrap flowType="login" />;
+  }
+
+  const flow = await getLoginFlow(config, searchParams);
 
   if (!flow) {
     return null;
@@ -19,6 +25,8 @@ export default async function LoginPage(props: OryPageParams) {
 
   return (
     <FlowCard
+      flowId={flow.id}
+      flowType="login"
       ui={flow.ui}
       title={isStepUp ? "Verify your identity" : "Login"}
       description={

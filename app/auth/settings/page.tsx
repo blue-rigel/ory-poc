@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { FlowCard } from "@/components/ory/flow-card";
+import { FlowBootstrap } from "@/components/ory/flow-session";
 import { oryFrontend } from "@/lib/ory-sdk";
 import config from "@/ory.config";
 
@@ -19,13 +20,18 @@ export default async function SettingsPage(props: OryPageParams) {
     redirect("/self-service/login/browser?refresh=true&aal=aal2&return_to=/auth/settings");
   }
 
-  const flow = await getSettingsFlow(config, props.searchParams);
+  const searchParams = await props.searchParams;
+  if (!searchParams.flow) {
+    return <FlowBootstrap flowType="settings" />;
+  }
+
+  const flow = await getSettingsFlow(config, searchParams);
 
   if (!flow) {
     return null;
   }
 
-  return <FlowCard ui={flow.ui} title="Account settings" description="Manage your profile and authentication methods." footer={{ href: "/profile", label: "Back to profile" }} />;
+  return <FlowCard flowId={flow.id} flowType="settings" ui={flow.ui} title="Account settings" description="Manage your profile and authentication methods." footer={{ href: "/profile", label: "Back to profile" }} />;
 }
 
 async function getSessionState(cookie: string) {
