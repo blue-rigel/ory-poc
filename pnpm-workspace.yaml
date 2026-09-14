@@ -1,3 +1,15 @@
+packages:
+  - oauth-apps/*
+
+catalog:
+  next: 16.2.9
+  react: 19.2.4
+  react-dom: 19.2.4
+  typescript: ^5
+  '@types/node': ^20
+  '@types/react': ^19
+  '@types/react-dom': ^19
+
 allowBuilds:
   sharp: true
   tldjs: set this to true or false
