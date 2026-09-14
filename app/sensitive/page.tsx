@@ -17,6 +17,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const REQUIRED_AAL = REQUIRED_AAL_ROUTES.sensitive;
+const SENSITIVE_RETURN_TO = "https://orypoc.test/sensitive";
+const STEP_UP_URL = `/self-service/login/browser?refresh=true&aal=aal2&return_to=${encodeURIComponent(SENSITIVE_RETURN_TO)}`;
 
 type PageState =
   | { status: "loading" }
@@ -58,7 +60,7 @@ export default function SensitivePage() {
       <div className="w-1/2 m-auto mt-16 text-center">
         <p className="text-muted-foreground mb-4">You are not logged in.</p>
         <Button asChild>
-          <Link href="/login?return_to=/sensitive">Log in</Link>
+          <Link href={`/login?return_to=${encodeURIComponent(SENSITIVE_RETURN_TO)}`}>Log in</Link>
         </Button>
       </div>
     );
@@ -82,7 +84,7 @@ export default function SensitivePage() {
           </CardContent>
           <CardFooter>
             <Button asChild>
-              <Link href="/self-service/login/browser?refresh=true&aal=aal2&return_to=/sensitive">
+              <Link href={STEP_UP_URL}>
                 Step up to {REQUIRED_AAL}
               </Link>
             </Button>
@@ -126,7 +128,7 @@ export default function SensitivePage() {
         {!stepUpOk && (
           <CardFooter>
             <Button asChild>
-              <Link href="/self-service/login/browser?refresh=true&aal=aal2&return_to=/sensitive">
+              <Link href={STEP_UP_URL}>
                 Step up to {REQUIRED_AAL}
               </Link>
             </Button>

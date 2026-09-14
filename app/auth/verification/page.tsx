@@ -16,5 +16,5 @@ export default async function VerificationPage(props: OryPageParams) {
     return null;
   }
 
-  return <FlowCard flowId={flow.id} flowType="verification" ui={flow.ui} title="Verify account" description="Confirm your email address to finish setting up your account." />;
+  return <FlowCard flowType="verification" ui={flow.ui} title="Verify account" description="Confirm your email address to finish setting up your account." />;
 }

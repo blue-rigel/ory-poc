@@ -2,6 +2,7 @@ import { getLoginFlow, type OryPageParams } from "@ory/nextjs/app";
 import type { UiNodeInputAttributes } from "@ory/client";
 
 import { FlowCard } from "@/components/ory/flow-card";
+import { StepUpUnavailable } from "@/components/ory/step-up-unavailable";
 import { FlowBootstrap } from "@/components/ory/flow-session";
 import config from "@/ory.config";
 
@@ -17,15 +18,23 @@ export default async function LoginPage(props: OryPageParams) {
     return null;
   }
 
-  const isStepUp = flow.ui.nodes.some(
-    (node) =>
-      node.type === "input" &&
-      (node.attributes as UiNodeInputAttributes).name === "totp_code",
+  const isStepUp =
+    new URL(flow.request_url).searchParams.get("aal") === "aal2" ||
+    flow.ui.nodes.some(
+      (node) =>
+        node.type === "input" &&
+        (node.attributes as UiNodeInputAttributes).name === "totp_code",
+    );
+  const hasStepUpMethod = flow.ui.nodes.some((node) =>
+    ["totp", "webauthn", "lookup_secret", "code"].includes(node.group),
   );
+
+  if (isStepUp && !hasStepUpMethod) {
+    return <StepUpUnavailable />;
+  }
 
   return (
     <FlowCard
-      flowId={flow.id}
       flowType="login"
       ui={flow.ui}
       title={isStepUp ? "Verify your identity" : "Login"}

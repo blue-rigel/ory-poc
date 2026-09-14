@@ -31,7 +31,7 @@ export default async function SettingsPage(props: OryPageParams) {
     return null;
   }
 
-  return <FlowCard flowId={flow.id} flowType="settings" ui={flow.ui} title="Account settings" description="Manage your profile and authentication methods." footer={{ href: "/profile", label: "Back to profile" }} />;
+  return <FlowCard flowType="settings" ui={flow.ui} title="Account settings" description="Manage your profile and authentication methods." footer={{ href: "/profile", label: "Back to profile" }} />;
 }
 
 async function getSessionState(cookie: string) {

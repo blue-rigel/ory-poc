@@ -24,10 +24,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FlowSession, type OryFlowType } from "@/components/ory/flow-session";
+import type { OryFlowType } from "@/components/ory/flow-session";
 
 type FlowCardProps = {
-  flowId: string;
   flowType: OryFlowType;
   ui: UiContainer;
   title: string;
@@ -35,12 +34,11 @@ type FlowCardProps = {
   footer?: { href: string; label: string };
 };
 
-export function FlowCard({ flowId, flowType, ui, title, description, footer }: FlowCardProps) {
+export function FlowCard({ flowType, ui, title, description, footer }: FlowCardProps) {
   const nodeGroups = flowType === "settings" ? groupNodes(ui.nodes as UiNode[]) : null;
 
   return (
     <div className="mx-auto mt-16 w-full max-w-xl px-4">
-      <FlowSession flowId={flowId} flowType={flowType} />
       <Card>
         <CardHeader>
           <CardTitle>{title}</CardTitle>
@@ -166,7 +164,17 @@ function FlowNode({ node }: { node: UiNode }) {
     }
     case "script": {
       const attributes = node.attributes as UiNodeScriptAttributes;
-      return <Script src={attributes.src} async={attributes.async} />;
+      return (
+        <Script
+          id={attributes.id}
+          src={attributes.src}
+          async={attributes.async}
+          crossOrigin={attributes.crossorigin as React.ScriptHTMLAttributes<HTMLScriptElement>["crossOrigin"]}
+          integrity={attributes.integrity}
+          referrerPolicy={attributes.referrerpolicy as React.HTMLAttributeReferrerPolicy}
+          nonce={attributes.nonce}
+        />
+      );
     }
     case "div": {
       const attributes = node.attributes as UiNodeDivisionAttributes;

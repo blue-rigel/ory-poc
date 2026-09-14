@@ -5,9 +5,9 @@ cors_public:
   enabled: false
   origins: []
 environment: dev
-home_region: us-east
-id: 7ef85b02-9aba-473a-b5ee-34dc59fd7c5f
-name: IDPF
+home_region: asia-northeast
+id: 3d4fe10b-927f-4abb-bb19-14fe4fd82866
+name: SPH PoC
 organizations: []
 revision_id: b5e0c077-0278-4c54-a655-98952cdd1193
 services:
@@ -70,7 +70,7 @@ services:
           - Ory-No-Custom-Domain-Redirect
           - Cf-Ipcountry
       cookies:
-        domain: boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
+        domain: cranky-bose-9s8hbv5let.projects.oryapis.com
         path: /
         same_site: Lax
       courier:
@@ -149,7 +149,7 @@ services:
         disallow_ref_in_identity_schemas: true
       selfservice:
         allowed_return_urls:
-        - https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
+        - https://cranky-bose-9s8hbv5let.projects.oryapis.com
         - /ui/logout
         - /ui/consent
         - /ui/welcome
@@ -161,6 +161,7 @@ services:
         - https://orypoc.test/auth/settings
         - https://orypoc.test/auth/registration
         - https://orypoc.test/auth/verification
+        - https://orypoc.test/sensitive
         default_browser_return_url: /session
         flows:
           error:
@@ -299,10 +300,10 @@ services:
             config:
               rp:
                 display_name: IDPF
-                id: boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
+                id: orypoc.test
                 origins:
-                - https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
-            enabled: false
+                - https://orypoc.test
+            enabled: true
           password:
             config: {}
           profile: {}
@@ -312,28 +313,28 @@ services:
             enabled: true
           webauthn:
             config:
-              passwordless: true
+              passwordless: false
               rp:
                 display_name: IDPF
-                id: boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
+                id: orypoc.test
                 origins:
-                - https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
+                - https://orypoc.test
             enabled: true
       serve:
         admin:
-          base_url: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com/
+          base_url: https://cranky-bose-9s8hbv5let.projects.oryapis.com/
           request_log:
             disable_for_health: true
         public:
-          base_url: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com/
+          base_url: https://cranky-bose-9s8hbv5let.projects.oryapis.com/
           cors:
             enabled: false
           request_log:
             disable_for_health: true
       session:
         cookie:
-          domain: boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
-          name: ory_session_boringdijkstraycg2uvfi5m
+          domain: cranky-bose-9s8hbv5let.projects.oryapis.com
+          name: ory_session_crankybose9s8hbv5let
           path: /
           same_site: Lax
         lifespan: 72h0m0s
@@ -409,11 +410,11 @@ services:
           tls:
             enabled: false
         cookies:
-          domain: boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
+          domain: cranky-bose-9s8hbv5let.projects.oryapis.com
           names:
-            consent_csrf: ory_oauth2_consent_csrf_boringdijkstraycg2uvfi5m
-            login_csrf: ory_oauth2_login_csrf_boringdijkstraycg2uvfi5m
-            session_csrf: ory_oauth2_session_csrf_boringdijkstraycg2uvfi5m
+            consent_csrf: ory_oauth2_consent_csrf_crankybose9s8hbv5let
+            login_csrf: ory_oauth2_login_csrf_crankybose9s8hbv5let
+            session_csrf: ory_oauth2_session_csrf_crankybose9s8hbv5let
           same_site_legacy_workaround: false
           same_site_mode: Lax
           secure: true
@@ -470,20 +471,20 @@ services:
         post_logout_redirect: /oauth2/fallbacks/logout/callback
         registration: /registration
         self:
-          admin: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com/admin
-          issuer: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
-          public: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com
+          admin: https://cranky-bose-9s8hbv5let.projects.oryapis.com/admin
+          issuer: https://cranky-bose-9s8hbv5let.projects.oryapis.com
+          public: https://cranky-bose-9s8hbv5let.projects.oryapis.com
       webfinger:
         jwks: {}
         oidc_discovery:
-          auth_url: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com/oauth2/auth
-          jwks_url: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com/.well-known/jwks.json
-          token_url: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com/oauth2/token
-          userinfo_url: https://boring-dijkstra-ycg2uvfi5m.projects.oryapis.com/userinfo
+          auth_url: https://cranky-bose-9s8hbv5let.projects.oryapis.com/oauth2/auth
+          jwks_url: https://cranky-bose-9s8hbv5let.projects.oryapis.com/.well-known/jwks.json
+          token_url: https://cranky-bose-9s8hbv5let.projects.oryapis.com/oauth2/token
+          userinfo_url: https://cranky-bose-9s8hbv5let.projects.oryapis.com/userinfo
   permission:
     config:
       namespaces: []
-slug: boring-dijkstra-ycg2uvfi5m
+slug: cranky-bose-9s8hbv5let
 state: running
-workspace_id: 046a0334-5ad8-4cae-b6f9-66102bc73693
+workspace_id: efcc2a16-44b6-4199-95af-887d9a58f057
 AdditionalProperties: {}
