@@ -9,6 +9,14 @@ fi
 
 : "${ORY_ISSUER:=https://cranky-bose-9s8hbv5let.projects.oryapis.com}"
 
+required=(ORY_PROJECT_API_TOKEN PORTAL_ORY_CLIENT_ID PORTAL_ORY_CLIENT_SECRET PORTAL_AUTH_SECRET ST_ORY_CLIENT_ID ST_ORY_CLIENT_SECRET ST_AUTH_SECRET BT_ORY_CLIENT_ID BT_ORY_CLIENT_SECRET BT_AUTH_SECRET)
+for name in "${required[@]}"; do
+  if [[ -z "${!name:-}" ]]; then
+    printf 'Missing required value %s in .env.oauth.local\n' "$name" >&2
+    exit 1
+  fi
+done
+
 cleanup() {
   local pid
   for pid in "${HTTPS_PROXY_PID:-}" "${ST_APP_PID:-}" "${BT_APP_PID:-}" "${ORY_APP_PID:-}" "${ORY_TUNNEL_PID:-}"; do
@@ -40,10 +48,17 @@ if [[ ! -f "$CERT_FILE" || ! -f "$KEY_FILE" ]] || \
   mkcert -cert-file "$CERT_FILE" -key-file "$KEY_FILE" "${DOMAINS[@]}"
 fi
 
+AUTH_SECRET="$PORTAL_AUTH_SECRET" \
+AUTH_URL="https://orypoc.test" \
+ORY_ISSUER="$ORY_ISSUER" \
+ORY_CLIENT_ID="$PORTAL_ORY_CLIENT_ID" \
+ORY_CLIENT_SECRET="$PORTAL_ORY_CLIENT_SECRET" \
+ORY_PROJECT_API_TOKEN="$ORY_PROJECT_API_TOKEN" \
 "$(command -v pnpm)" dev:local &
 ORY_APP_PID=$!
 
 AUTH_SECRET="${ST_AUTH_SECRET:-}" \
+AUTH_URL="https://straitstimes.test" \
 ORY_ISSUER="$ORY_ISSUER" \
 ORY_CLIENT_ID="${ST_ORY_CLIENT_ID:-}" \
 ORY_CLIENT_SECRET="${ST_ORY_CLIENT_SECRET:-}" \
@@ -51,6 +66,7 @@ ORY_CLIENT_SECRET="${ST_ORY_CLIENT_SECRET:-}" \
 ST_APP_PID=$!
 
 AUTH_SECRET="${BT_AUTH_SECRET:-}" \
+AUTH_URL="https://businesstimes.test" \
 ORY_ISSUER="$ORY_ISSUER" \
 ORY_CLIENT_ID="${BT_ORY_CLIENT_ID:-}" \
 ORY_CLIENT_SECRET="${BT_ORY_CLIENT_SECRET:-}" \

@@ -27,6 +27,12 @@ button { font: inherit; }
 .header-actions form { display: flex; align-items: center; gap: 10px; }
 .auth-user { max-width: 180px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .login-button { border: 1px solid var(--blue); padding: 9px 19px; color: var(--blue); background: white; font-size: 13px; font-weight: 700; cursor: pointer; }
+.login-control { position: relative; }
+.auth-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.auth-fallback { position: absolute; z-index: 2; top: calc(100% + 8px); right: 0; width: max-content; max-width: min(280px, 80vw); padding: 9px 12px; border: 1px solid var(--line); color: var(--blue); background: white; box-shadow: 0 3px 12px rgba(0,0,0,.12); font-size: 12px; font-weight: 700; }
+.auth-complete { min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 30px; text-align: center; }
+.auth-complete h1 { margin: 0; color: var(--blue); font-family: Georgia, serif; }
+.auth-complete p { color: var(--muted); }
 .main-nav { border-block: 1px solid var(--line); }
 .nav-scroll { height: 46px; display: flex; align-items: center; justify-content: center; gap: clamp(20px, 3vw, 42px); overflow-x: auto; font-family: Georgia, serif; font-size: 15px; font-weight: 700; }
 .ad-space { height: 120px; display: grid; place-items: end center; padding-bottom: 20px; color: #aaa; font-size: 9px; letter-spacing: 1.5px; }

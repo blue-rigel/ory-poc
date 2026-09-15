@@ -8,6 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { oryIdentityAdmin } from "@/lib/ory-admin";
+
+export const dynamic = "force-dynamic";
 import { disableIdentity, enableIdentity, deleteIdentity } from "./actions";
 
 export default async function AdminIdentitiesPage() {

@@ -162,6 +162,7 @@ services:
         - https://orypoc.test/auth/registration
         - https://orypoc.test/auth/verification
         - https://orypoc.test/sensitive
+        - https://orypoc.test/oauth2/login
         default_browser_return_url: /session
         flows:
           error:
@@ -464,9 +465,9 @@ services:
         login_consent_request: 30m0s
         refresh_token: 720h0m0s
       urls:
-        consent: /consent
+        consent: https://orypoc.test/oauth2/consent
         error: /error
-        login: /login
+        login: https://orypoc.test/oauth2/login
         logout: /ui/logout
         post_logout_redirect: /oauth2/fallbacks/logout/callback
         registration: /registration

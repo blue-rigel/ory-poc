@@ -60,25 +60,33 @@ ORY_APP_URL=https://orypoc.test ./ory.sh
 
 ## OAuth2/OIDC single sign-on
 
-Create **two separate Server applications** in Ory Console, one for each news
-site. These are confidential Next.js applications: the authorization code is
-exchanged on the server and the client secret is never sent to the browser.
+Create three separate **Server applications** in Ory Console, one for the portal
+and one for each news site. These are confidential Next.js applications: the
+authorization code is exchanged on the server and client secrets never reach
+the browser.
 
 Configure the applications as follows:
 
-| Application | Redirect URI | Post-logout URI |
-| --- | --- | --- |
-| Straits Times | `https://straitstimes.test/api/auth/callback/ory` | `https://straitstimes.test/` |
-| Business Times | `https://businesstimes.test/api/auth/callback/ory` | `https://businesstimes.test/` |
+| Application | Redirect URI | Front-channel logout URI | Post-logout URI |
+| --- | --- | --- | --- |
+| Portal | `https://orypoc.test/api/auth/callback/ory` | `https://orypoc.test/api/auth/frontchannel-logout` | `https://orypoc.test/` |
+| Straits Times | `https://straitstimes.test/api/auth/callback/ory` | `https://straitstimes.test/api/auth/frontchannel-logout` | `https://straitstimes.test/` |
+| Business Times | `https://businesstimes.test/api/auth/callback/ory` | `https://businesstimes.test/api/auth/frontchannel-logout` | `https://businesstimes.test/` |
 
-Use Authorization Code and Refresh Token grants, the `code` response type, and
-the `openid email profile offline_access` scopes. Enable **Skip consent** for
-first-party applications if users should not see a consent screen. Keep PKCE
-enabled. Do not use Machine to Machine, because that flow has no browser user;
-Mobile/SPA is for public clients that cannot protect a secret.
+Use the Authorization Code grant, the `code` response type, HTTP Basic client
+authentication, and the `openid email profile` scopes. The applications do not
+retain refresh tokens, so they do not request `offline_access`. Enable **Skip
+consent**, **Skip logout consent**, PKCE, and front-channel logout session for
+these trusted first-party applications.
+
+Set the project OAuth login URL to
+`https://orypoc.test/oauth2/login`. Keep the issuer and all discovery/token
+traffic on `https://cranky-bose-9s8hbv5let.projects.oryapis.com`. Create a
+Project API Key for the custom login endpoint and store it only as
+`ORY_PROJECT_API_TOKEN` in the portal server environment.
 
 Create the local environment file and generate a different Auth.js secret for
-each application:
+each of the three applications:
 
 ```bash
 cp .env.oauth.example .env.oauth.local
@@ -90,9 +98,9 @@ Put each Ory client ID/client secret and generated Auth.js secret in
 
 The OAuth clients use the Ory Network issuer
 `https://cranky-bose-9s8hbv5let.projects.oryapis.com`. The `ST_AUTH_SECRET` and
-`BT_AUTH_SECRET` values do not come from Ory Console; they are private Auth.js
-secrets used to encrypt each site's local session cookie. Generate them locally
-with `openssl rand -base64 32` and use a different value for each application.
+`BT_AUTH_SECRET` and `PORTAL_AUTH_SECRET` values do not come from Ory Console;
+they encrypt each app's local Auth.js session cookie. Generate a different value
+for each application.
 
 The sites intentionally do not share their application cookies. Each site owns
 an independent, host-only Auth.js cookie. Clicking **Log in** redirects the
@@ -106,3 +114,10 @@ For production, use one stable Ory issuer/custom domain such as
 domains; OIDC SSO works through top-level redirects and does not require sharing
 cookies across `straitstimes` and `businesstimes` domains. Never attempt to set a
 cookie for `.test` or another public suffix.
+
+Login opens a popup on supported desktop browsers and falls back to a same-tab
+redirect when popups are blocked, closed, time out, or the device uses a coarse
+pointer. **Sign out here** clears only the current app's local session. **Sign
+out everywhere** reliably clears the initiating app and Ory provider session;
+clearing other apps through front-channel iframes is best-effort because browser
+third-party cookie policies can prevent those apps from receiving their cookie.

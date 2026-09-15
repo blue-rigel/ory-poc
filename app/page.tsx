@@ -1,5 +1,6 @@
-"use client";
-
+import { auth } from "@/auth";
+import { signOutEverywhere, signOutHere } from "@/app/auth-actions";
+import { LoginButton } from "@/components/auth/login-button";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,7 +11,8 @@ import {
 import { Lock, LogIn, Monitor, ShieldCheck, Users, Network } from "lucide-react";
 import Link from "next/link";
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
   return (
     <section className="flex justify-center">
       <Card className="w-full max-w-2xl mt-16">
@@ -28,12 +30,12 @@ export default function Home() {
               variant="outline"
               className="h-14 justify-start gap-3 text-left bg-transparent"
             >
-              <Link href="/login">
+              <Link href="/profile">
                 <LogIn className="h-5 w-5 text-green-600" />
                 <div>
-                  <div className="font-medium">Email/Password Login</div>
+                  <div className="font-medium">Portal Profile</div>
                   <div className="text-sm text-muted-foreground">
-                    Custom UI with Ory browser flow
+                    OIDC session with the custom Ory login UI
                   </div>
                 </div>
               </Link>
@@ -81,7 +83,7 @@ export default function Home() {
                 <div>
                   <div className="font-medium">SSO Demo (App A / App B)</div>
                   <div className="text-sm text-muted-foreground">
-                    Log in once, both apps share the same Ory session cookie
+                    Provider SSO with an independent session in each app
                   </div>
                 </div>
               </Link>
@@ -122,7 +124,18 @@ export default function Home() {
         </CardContent>
 
         <CardFooter className="justify-center text-sm text-muted-foreground">
-          Authentication uses Ory&apos;s first-party browser session cookie.
+          {session?.user ? (
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <span>Signed in as {session.user.email ?? session.user.name}</span>
+              <form action={signOutHere}><Button variant="outline" type="submit">Sign out here</Button></form>
+              <form action={signOutEverywhere}><Button variant="outline" type="submit">Sign out everywhere</Button></form>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              <LoginButton returnTo="/" />
+              <span>Ory provides SSO; each app keeps its own local session.</span>
+            </div>
+          )}
         </CardFooter>
       </Card>
     </section>

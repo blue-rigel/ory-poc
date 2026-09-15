@@ -9,7 +9,17 @@ import config from "@/ory.config";
 export default async function LoginPage(props: OryPageParams) {
   const searchParams = await props.searchParams;
   if (!searchParams.flow) {
-    return <FlowBootstrap flowType="login" />;
+    const returnTo = typeof searchParams.return_to === "string" ? searchParams.return_to : undefined;
+    let safeReturnTo: string | undefined;
+    if (returnTo) {
+      try {
+        const target = new URL(returnTo, "https://orypoc.test");
+        if (target.origin === "https://orypoc.test") safeReturnTo = target.toString();
+      } catch {
+        safeReturnTo = undefined;
+      }
+    }
+    return <FlowBootstrap flowType="login" returnTo={safeReturnTo} />;
   }
 
   const flow = await getLoginFlow(config, searchParams);

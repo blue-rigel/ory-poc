@@ -11,20 +11,23 @@ export type OryFlowType =
 
 type FlowBootstrapProps = {
   flowType: OryFlowType;
+  returnTo?: string;
 };
 
-export function FlowBootstrap({ flowType }: FlowBootstrapProps) {
+export function FlowBootstrap({ flowType, returnTo }: FlowBootstrapProps) {
   useEffect(() => {
     const currentUrl = new URL(window.location.href);
     const initializationUrl = new URL(
       `/self-service/${flowType}/browser`,
       window.location.origin,
     );
-    currentUrl.searchParams.forEach((value, key) => {
-      initializationUrl.searchParams.append(key, value);
-    });
+    if (returnTo) initializationUrl.searchParams.set("return_to", returnTo);
+    for (const key of ["aal", "refresh", "organization"]) {
+      const value = currentUrl.searchParams.get(key);
+      if (value) initializationUrl.searchParams.set(key, value);
+    }
     window.location.replace(initializationUrl.toString());
-  }, [flowType]);
+  }, [flowType, returnTo]);
 
   return null;
 }

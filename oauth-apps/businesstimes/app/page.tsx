@@ -1,4 +1,5 @@
-import { auth, signIn, signOut } from "../auth";
+import { auth } from "../auth";
+import { LoginControl } from "./components/login-control";
 
 const markets = [
   { name: "STI", value: "3,928.41", change: "+0.42%" },
@@ -34,14 +35,12 @@ export default async function Home() {
           <div className="header-actions">
             <button className="icon-button" type="button" aria-label="Search"><SearchIcon /></button>
             {session?.user ? (
-              <form action={async () => { "use server"; await signOut({ redirectTo: "/" }); }}>
+              <form action="/auth/logout" method="post">
                 <span className="auth-user">{session.user.name ?? session.user.email}</span>
                 <button className="login-button" type="submit">Log out</button>
               </form>
             ) : (
-              <form action={async () => { "use server"; await signIn("ory", { redirectTo: "/" }); }}>
-                <button className="login-button" type="submit">Log in</button>
-              </form>
+              <LoginControl />
             )}
           </div>
         </div>
