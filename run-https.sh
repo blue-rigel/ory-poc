@@ -21,7 +21,7 @@ cleanup() {
 
 trap cleanup EXIT INT TERM
 
-ORY_APP_URL=http://127.0.0.1:3000 ORY_TUNNEL_URL=https://orypoc.test ./ory.sh &
+ORY_APP_URL=https://orypoc.test ./ory.sh &
 ORY_TUNNEL_PID=$!
 
 CERT_DIR=.cert

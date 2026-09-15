@@ -50,15 +50,12 @@ Run [https://orypoc.test](https://orypoc.test) and its Ory tunnel together:
 ```
 
 The script starts the Ory tunnel as the current user and runs the HTTPS router
-on privileged port 443 through `sudo`. The router sends `orypoc.test` through
-the tunnel, which serves Ory identity/OAuth endpoints and forwards application
-pages to port 3000. When run separately, the equivalent tunnel command is:
+on privileged port 443 through `sudo`. The router sends `orypoc.test` directly
+to the central Next.js application on port 3000. When the tunnel is run
+separately, use:
 
 ```bash
-ORY_APP_URL=http://127.0.0.1:3000 \
-ORY_TUNNEL_URL=https://orypoc.test \
-ORY_COOKIE_DOMAIN=orypoc.test \
-./ory.sh
+ORY_APP_URL=https://orypoc.test ./ory.sh
 ```
 
 ## OAuth2/OIDC single sign-on
