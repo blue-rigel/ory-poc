@@ -36,8 +36,9 @@ export default async function Home() {
             <button className="icon-button" type="button" aria-label="Search"><SearchIcon /></button>
             {session?.user ? (
               <form action="/auth/logout" method="post">
-                <span className="auth-user">{session.user.name ?? session.user.email}</span>
-                <button className="login-button" type="submit">Log out</button>
+                <span className="auth-user">{session.user.email ?? session.user.loginId ?? session.user.name}</span>
+                <button className="login-button" name="mode" value="local" type="submit">Log out</button>
+                <button className="login-button" name="mode" value="slo" type="submit">Single logout</button>
               </form>
             ) : (
               <LoginControl />

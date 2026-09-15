@@ -13,10 +13,5 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/?authError=invalid_attempt", PORTAL_ORIGIN));
   }
 
-  const popup = request.nextUrl.searchParams.get("popup") === "1";
-  const destination = popup
-    ? `/auth/popup-complete?nonce=${encodeURIComponent(nonce)}&return_to=${encodeURIComponent(returnTo)}`
-    : returnTo;
-
-  await signIn("ory", { redirectTo: destination });
+  await signIn("ory", { redirectTo: returnTo });
 }

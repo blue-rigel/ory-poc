@@ -14,6 +14,12 @@ function idTokenClaims(idToken?: string) {
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   trustHost: true,
+  cookies: {
+    sessionToken: {
+      name: "__Secure-authjs.session-token",
+      options: { httpOnly: true, sameSite: "none", path: "/", secure: true },
+    },
+  },
   providers: [
     {
       id: "ory",
@@ -25,6 +31,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientSecret: process.env.ORY_CLIENT_SECRET,
       checks: ["pkce", "state"],
       authorization: { params: { scope: "openid email profile" } },
+      profile(profile) {
+        const email = typeof profile.email === "string" ? profile.email : null;
+        const name = typeof profile.name === "string"
+          ? profile.name
+          : typeof profile.preferred_username === "string"
+            ? profile.preferred_username
+            : email;
+        return { id: profile.sub, email, name, image: null };
+      },
     },
   ],
   session: { strategy: "jwt" },
@@ -39,6 +54,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.idToken = account.id_token;
         token.issuer = tokenIssuer === issuer ? issuer : undefined;
         token.sid = typeof sid === "string" ? sid : undefined;
+        token.loginId =
+          typeof profile?.email === "string"
+            ? profile.email
+            : typeof profile?.preferred_username === "string"
+              ? profile.preferred_username
+              : typeof profile?.sub === "string"
+                ? profile.sub
+                : token.sub;
       }
       return token;
     },
@@ -47,6 +70,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         issuer: typeof token.issuer === "string" ? token.issuer : undefined,
         sid: typeof token.sid === "string" ? token.sid : undefined,
       };
+      session.user.loginId = typeof token.loginId === "string" ? token.loginId : undefined;
       return session;
     },
   },
@@ -54,10 +78,22 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
 declare module "next-auth" {
   interface Session {
+    user: {
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      loginId?: string;
+    };
     oidc?: {
       iss?: string;
       issuer?: string;
       sid?: string;
     };
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    loginId?: string;
   }
 }

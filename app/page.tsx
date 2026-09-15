@@ -126,7 +126,7 @@ export default async function Home() {
         <CardFooter className="justify-center text-sm text-muted-foreground">
           {session?.user ? (
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <span>Signed in as {session.user.email ?? session.user.name}</span>
+              <span>Signed in as {session.user.email ?? session.user.loginId ?? session.user.name}</span>
               <form action={signOutHere}><Button variant="outline" type="submit">Sign out here</Button></form>
               <form action={signOutEverywhere}><Button variant="outline" type="submit">Sign out everywhere</Button></form>
             </div>

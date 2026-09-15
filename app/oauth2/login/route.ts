@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { ORY_ISSUER } from "@/auth";
 import { assertOryRedirect, PORTAL_ORIGIN } from "@/lib/auth-urls";
-import { oryOAuthAdmin } from "@/lib/ory-admin";
+import { oryIdentityAdmin, oryOAuthAdmin } from "@/lib/ory-admin";
 
 const CHALLENGE_PATTERN = /^[A-Za-z0-9._~+/=-]{16,8192}$/;
 const REMEMBER_FOR_SECONDS = 72 * 60 * 60;
@@ -66,12 +66,17 @@ export async function GET(request: NextRequest) {
     });
 
     let subject: string | undefined = loginRequest.subject;
+    let email: string | undefined;
     if (!loginRequest.skip) {
       const cookie = request.headers.get("cookie") ?? "";
       try {
         const frontend = new FrontendApi(new Configuration({ basePath: ORY_ISSUER }));
         const { data: session } = await frontend.toSession({ cookie });
         subject = session.identity?.id;
+        const traits = session.identity?.traits as Record<string, unknown> | undefined;
+        if (typeof traits?.email === "string") {
+          email = traits.email;
+        }
       } catch (error) {
         const errorId = isAxiosError(error)
           ? error.response?.data?.error?.id
@@ -83,15 +88,20 @@ export async function GET(request: NextRequest) {
         }
         return continueWithKratos(challenge, aal2Required);
       }
+    } else if (subject) {
+      const { data: identity } = await oryIdentityAdmin.getIdentity({ id: subject });
+      const traits = identity.traits as Record<string, unknown> | undefined;
+      if (typeof traits?.email === "string") email = traits.email;
     }
 
     if (!subject) return clearChallenge(failure("missing_subject"));
+    const context = email ? { email } : {};
 
     const { data } = await oryOAuthAdmin.acceptOAuth2LoginRequest({
       loginChallenge: challenge,
       acceptOAuth2LoginRequest: loginRequest.skip
-        ? { subject }
-        : { subject, remember: true, remember_for: REMEMBER_FOR_SECONDS },
+        ? { subject, context }
+        : { subject, context, remember: true, remember_for: REMEMBER_FOR_SECONDS },
     });
     return clearChallenge(NextResponse.redirect(assertOryRedirect(data.redirect_to)));
   } catch {

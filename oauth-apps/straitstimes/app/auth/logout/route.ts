@@ -2,8 +2,16 @@ import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { issuer, signOut } from "../../../auth";
 
+const PUBLIC_ORIGIN = "https://straitstimes.test";
+
 export async function POST(request: NextRequest) {
-  const home = new URL("/", request.url);
+  const home = new URL("/", PUBLIC_ORIGIN);
+  const mode = (await request.formData()).get("mode");
+  if (mode !== "slo") {
+    await signOut({ redirect: false });
+    return Response.redirect(home, 303);
+  }
+
   const secret = process.env.AUTH_SECRET;
   const token = secret
     ? await getToken({ req: request, secret, secureCookie: true })

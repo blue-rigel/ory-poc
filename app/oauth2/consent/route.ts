@@ -28,12 +28,18 @@ export async function GET(request: NextRequest) {
       return failure("consent_required");
     }
 
+    const context = consentRequest.context as Record<string, unknown> | undefined;
+    const email = typeof context?.email === "string" ? context.email : undefined;
+
     const { data } = await oryOAuthAdmin.acceptOAuth2ConsentRequest({
       consentChallenge: challenge,
       acceptOAuth2ConsentRequest: {
         grant_scope: consentRequest.requested_scope ?? [],
         grant_access_token_audience:
           consentRequest.requested_access_token_audience ?? [],
+        session: {
+          id_token: email ? { email, preferred_username: email } : {},
+        },
         remember: true,
         remember_for: REMEMBER_FOR_SECONDS,
       },

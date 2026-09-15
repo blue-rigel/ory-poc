@@ -18,6 +18,7 @@ export default async function ProfilePage() {
       <CardContent className="space-y-2 text-sm">
         <Row label="Name" value={session.user.name} />
         <Row label="Email" value={session.user.email} />
+        <Row label="Login ID" value={session.user.loginId} />
         <Row label="Expires" value={session.expires} />
       </CardContent>
       <CardFooter className="flex-wrap gap-2">

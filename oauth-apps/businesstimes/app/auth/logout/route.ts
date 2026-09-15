@@ -2,7 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { issuer, signOut } from "../../../auth";
 
+const PUBLIC_ORIGIN = "https://businesstimes.test";
+
 export async function POST(request: NextRequest) {
+  const home = new URL("/", PUBLIC_ORIGIN);
+  const mode = (await request.formData()).get("mode");
+  if (mode !== "slo") {
+    await signOut({ redirect: false, redirectTo: "/" });
+    return NextResponse.redirect(home, 303);
+  }
+
   const secret = process.env.AUTH_SECRET;
   const token = secret
     ? await getToken({ req: request, secret, secureCookie: true })
@@ -27,9 +36,9 @@ export async function POST(request: NextRequest) {
   if (endSessionEndpoint && idToken) {
     const logoutUrl = new URL(endSessionEndpoint);
     logoutUrl.searchParams.set("id_token_hint", idToken);
-    logoutUrl.searchParams.set("post_logout_redirect_uri", new URL("/", request.nextUrl.origin).toString());
+    logoutUrl.searchParams.set("post_logout_redirect_uri", home.toString());
     return NextResponse.redirect(logoutUrl, 303);
   }
 
-  return NextResponse.redirect(new URL("/", request.nextUrl.origin), 303);
+  return NextResponse.redirect(home, 303);
 }

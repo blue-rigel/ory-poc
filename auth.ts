@@ -13,6 +13,12 @@ function required(name: "ORY_CLIENT_ID" | "ORY_CLIENT_SECRET") {
 export const { auth, handlers, signIn, signOut } = NextAuth({
   trustHost: true,
   session: { strategy: "jwt" },
+  cookies: {
+    sessionToken: {
+      name: "__Secure-authjs.session-token",
+      options: { httpOnly: true, sameSite: "none", path: "/", secure: true },
+    },
+  },
   providers: [
     {
       id: "ory",
@@ -24,6 +30,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientSecret: required("ORY_CLIENT_SECRET"),
       checks: ["pkce", "state"],
       authorization: { params: { scope: "openid email profile" } },
+      profile(profile) {
+        const email = typeof profile.email === "string" ? profile.email : null;
+        const name = typeof profile.name === "string"
+          ? profile.name
+          : typeof profile.preferred_username === "string"
+            ? profile.preferred_username
+            : email;
+        return { id: profile.sub, email, name, image: null };
+      },
     },
   ],
   callbacks: {
@@ -32,12 +47,21 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.oryIdToken = account.id_token;
         token.oryIssuer = ORY_ISSUER;
         token.orySid = typeof profile?.sid === "string" ? profile.sid : undefined;
+        token.loginId =
+          typeof profile?.email === "string"
+            ? profile.email
+            : typeof profile?.preferred_username === "string"
+              ? profile.preferred_username
+              : typeof profile?.sub === "string"
+                ? profile.sub
+                : token.sub;
       }
       return token;
     },
     session({ session, token }) {
       session.oryIssuer = token.oryIssuer;
       session.orySid = token.orySid;
+      session.user.loginId = token.loginId;
       return session;
     },
   },
