@@ -85,22 +85,27 @@ traffic on `https://cranky-bose-9s8hbv5let.projects.oryapis.com`. Create a
 Project API Key for the custom login endpoint and store it only as
 `ORY_PROJECT_API_TOKEN` in the portal server environment.
 
-Create the local environment file and generate a different Auth.js secret for
-each of the three applications:
+Each application owns its environment files. Copy the corresponding tracked
+examples, then generate a different Auth.js secret for each application:
 
 ```bash
-cp .env.oauth.example .env.oauth.local
+cp .env.example .env
+cp .env.local.example .env.local
+cp oauth-apps/straitstimes/.env.example oauth-apps/straitstimes/.env
+cp oauth-apps/straitstimes/.env.local.example oauth-apps/straitstimes/.env.local
+cp oauth-apps/businesstimes/.env.example oauth-apps/businesstimes/.env
+cp oauth-apps/businesstimes/.env.local.example oauth-apps/businesstimes/.env.local
 openssl rand -base64 32
 ```
 
-Put each Ory client ID/client secret and generated Auth.js secret in
-`.env.oauth.local`, then run `./run-https.sh`.
+Put portal values in the root `.env` and `.env.local` files. Put each news
+application's Ory client ID/client secret and generated Auth.js secret in that
+application's own `oauth-apps/<app>/.env.local`, then run `./run-https.sh`.
 
 The OAuth clients use the Ory Network issuer
-`https://cranky-bose-9s8hbv5let.projects.oryapis.com`. The `ST_AUTH_SECRET` and
-`BT_AUTH_SECRET` and `PORTAL_AUTH_SECRET` values do not come from Ory Console;
-they encrypt each app's local Auth.js session cookie. Generate a different value
-for each application.
+`https://cranky-bose-9s8hbv5let.projects.oryapis.com`. Each application's
+`AUTH_SECRET` does not come from Ory Console; it encrypts that app's local
+Auth.js session cookie. Generate a different value for each application.
 
 The sites intentionally do not share their application cookies. Each site owns
 an independent, host-only Auth.js cookie. Clicking **Log in** redirects the
