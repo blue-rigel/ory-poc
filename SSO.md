@@ -32,6 +32,66 @@ flowchart LR
     BT <-->|OIDC Authorization Code| Ory
 ```
 
+## Broker Architecture
+
+`orypoc.test` is the trusted bridge between the OAuth applications and Ory Network. The OAuth applications own their UI and local Auth.js sessions. The broker owns the browser-flow state, talks to Ory's identity and OAuth APIs, and returns control to the application that initiated login.
+
+```mermaid
+flowchart LR
+    User[User browser]
+
+    subgraph Apps[OAuth applications]
+        ST[straitstimes.test]
+        BT[businesstimes.test]
+        AppForm[App-hosted login form]
+        AuthJS[Auth.js callback]
+        LocalSession[(App-local session)]
+    end
+
+    subgraph Broker[orypoc.test broker]
+        LoginHandler[/oauth2/login]
+        FlowBroker[/oauth2/identity-login]
+        ConsentHandler[/oauth2/consent]
+        LogoutHandler[/oauth2/logout]
+        Ticket[Encrypted browser-flow ticket]
+        CentralSession[(Central identity cookie)]
+    end
+
+    subgraph OryNetwork[Ory Network]
+        OAuth[OAuth2/OIDC provider]
+        Identity[Ory identity browser-flow API]
+        ProviderSession[(Remembered provider session)]
+    end
+
+    User -->|Select Log in| ST
+    User -->|Select Log in| BT
+    ST -->|Authorization request| OAuth
+    BT -->|Authorization request| OAuth
+    OAuth -->|Login challenge| LoginHandler
+    LoginHandler -->|Check remembered login| ProviderSession
+
+    LoginHandler -->|No session: create browser flow| Identity
+    Identity -->|Flow ID and CSRF state| LoginHandler
+    LoginHandler --> Ticket
+    Ticket -->|Redirect popup to originating app| AppForm
+    User -->|Enter credentials| AppForm
+    AppForm -->|Top-level form POST| FlowBroker
+    FlowBroker -->|Submit browser flow server-to-server| Identity
+    Identity -->|Identity session and cookie| FlowBroker
+    FlowBroker --> CentralSession
+    FlowBroker -->|Accept login challenge| OAuth
+
+    LoginHandler -->|Existing session: accept immediately| OAuth
+    OAuth -->|Consent challenge| ConsentHandler
+    ConsentHandler -->|Accept trusted consent| OAuth
+    OAuth -->|Authorization code| AuthJS
+    AuthJS --> LocalSession
+
+    LogoutHandler -->|Accept provider logout challenge| OAuth
+```
+
+The encrypted ticket moves only browser-flow state between trusted origins. It does not create a shared application session. ST and BT still receive separate Auth.js cookies after their own OIDC callbacks.
+
 ## Cookie Model
 
 The flow is designed for Safari Intelligent Tracking Prevention and browsers that block third-party cookies.
