@@ -3,6 +3,7 @@ import { getToken } from "next-auth/jwt";
 import { issuer, signOut } from "../../../auth";
 
 const PUBLIC_ORIGIN = "https://straitstimes.test";
+const PORTAL_ORIGIN = "https://orypoc.test";
 
 export async function POST(request: NextRequest) {
   const home = new URL("/", PUBLIC_ORIGIN);
@@ -28,7 +29,9 @@ export async function POST(request: NextRequest) {
       const logout = new URL(metadata.end_session_endpoint);
       logout.searchParams.set("id_token_hint", idToken);
       logout.searchParams.set("post_logout_redirect_uri", home.href);
-      return Response.redirect(logout, 303);
+      const identityLogout = new URL("/auth/logout", PORTAL_ORIGIN);
+      identityLogout.searchParams.set("return_to", logout.toString());
+      return Response.redirect(identityLogout, 303);
     }
   } catch {
     // Local logout has already completed; global logout is best effort.

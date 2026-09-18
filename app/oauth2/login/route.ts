@@ -1,32 +1,69 @@
-import { FrontendApi, Configuration } from "@ory/client";
+import { FrontendApi, Configuration, type UiNodeInputAttributes } from "@ory/client";
 import { isAxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 import { ORY_ISSUER } from "@/auth";
 import { assertOryRedirect, PORTAL_ORIGIN } from "@/lib/auth-urls";
+import { sealLoginTicket } from "@/lib/login-ticket";
 import { oryIdentityAdmin, oryOAuthAdmin } from "@/lib/ory-admin";
 
 const CHALLENGE_PATTERN = /^[A-Za-z0-9._~+/=-]{16,8192}$/;
 const REMEMBER_FOR_SECONDS = 72 * 60 * 60;
 const CHALLENGE_COOKIE = "ory_oauth_login_challenge";
 const HANDOFF_COOKIE = "ory_oauth_login_handoff";
+const CLIENT_ORIGINS: Record<string, "https://straitstimes.test" | "https://businesstimes.test"> = {
+  "c1d1b90a-9604-4038-b15f-7f38e316a640": "https://straitstimes.test",
+  "6cf2b9d8-aa5c-408f-bff4-3132b5344936": "https://businesstimes.test",
+};
 
 function clearChallenge(response: NextResponse) {
-  response.cookies.delete(CHALLENGE_COOKIE);
-  response.cookies.delete(HANDOFF_COOKIE);
+  const expiredCookie = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax" as const,
+    path: "/oauth2",
+    maxAge: 0,
+  };
+  response.cookies.set(CHALLENGE_COOKIE, "", expiredCookie);
+  response.cookies.set(HANDOFF_COOKIE, "", expiredCookie);
   return response;
 }
 
-function continueWithKratos(
+async function continueWithKratos(
   challenge: string,
+  clientId: string | undefined,
   aal2Required: boolean,
 ) {
-  const login = new URL("/login", PORTAL_ORIGIN);
-  login.searchParams.set("return_to", `${PORTAL_ORIGIN}/oauth2/login`);
-  if (aal2Required) {
-    login.searchParams.set("aal", "aal2");
-    login.searchParams.set("refresh", "true");
-  }
+  const clientOrigin = clientId ? CLIENT_ORIGINS[clientId] : undefined;
+  if (!clientOrigin || aal2Required) return failure("unsupported_login_client");
+
+  const frontend = new FrontendApi(new Configuration({ basePath: ORY_ISSUER }));
+  const { data: flow, headers } = await frontend.createBrowserLoginFlow({
+    returnTo: `${PORTAL_ORIGIN}/oauth2/login`,
+  });
+  const csrfCookie = (headers["set-cookie"] ?? [])
+    .map((header) => header.split(";", 1)[0])
+    .find((cookie) => cookie.startsWith("csrf_token_"));
+  const csrfTokenNode = flow.ui.nodes.find((node) => {
+    if (node.type !== "input") return false;
+    return (node.attributes as UiNodeInputAttributes).name === "csrf_token";
+  });
+  const csrfAttributes = csrfTokenNode?.attributes as UiNodeInputAttributes | undefined;
+  const csrfToken = typeof csrfAttributes?.value === "string"
+    ? csrfAttributes.value
+    : undefined;
+  if (!csrfCookie || !csrfToken) return failure("login_flow_failed");
+
+  const login = new URL("/auth/identity-login", clientOrigin);
+  login.searchParams.set("stage", "identifier");
+  login.searchParams.set("ticket", sealLoginTicket({
+    challenge,
+    clientOrigin,
+    csrfCookie,
+    csrfToken,
+    expiresAt: Date.now() + 5 * 60_000,
+    flowId: flow.id,
+  }));
 
   const response = NextResponse.redirect(login);
   response.cookies.set(CHALLENGE_COOKIE, challenge, {
@@ -86,7 +123,7 @@ export async function GET(request: NextRequest) {
         if (request.cookies.has(HANDOFF_COOKIE)) {
           return clearChallenge(failure("session_handoff_failed"));
         }
-        return continueWithKratos(challenge, aal2Required);
+        return continueWithKratos(challenge, loginRequest.client?.client_id, aal2Required);
       }
     } else if (subject) {
       const { data: identity } = await oryIdentityAdmin.getIdentity({ id: subject });

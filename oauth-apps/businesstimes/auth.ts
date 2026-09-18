@@ -29,7 +29,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       wellKnown: `${issuer}/.well-known/openid-configuration`,
       clientId: process.env.ORY_CLIENT_ID,
       clientSecret: process.env.ORY_CLIENT_SECRET,
-      checks: ["pkce", "state"],
+      checks: ["pkce", "state", "nonce"],
       authorization: { params: { scope: "openid email profile" } },
       profile(profile) {
         const email = typeof profile.email === "string" ? profile.email : null;

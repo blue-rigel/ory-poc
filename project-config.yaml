@@ -157,6 +157,7 @@ services:
         - https://orypoc.test/auth/error
         - https://orypoc.test/auth/login
         - https://orypoc.test/auth/google/callback
+        - https://orypoc.test/auth/logout
         - https://orypoc.test/auth/recovery
         - https://orypoc.test/auth/settings
         - https://orypoc.test/auth/registration
@@ -468,7 +469,7 @@ services:
         consent: https://orypoc.test/oauth2/consent
         error: /error
         login: https://orypoc.test/oauth2/login
-        logout: /ui/logout
+        logout: https://orypoc.test/oauth2/logout
         post_logout_redirect: /oauth2/fallbacks/logout/callback
         registration: /registration
         self:

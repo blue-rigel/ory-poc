@@ -22,6 +22,16 @@ button { font: inherit; }
 .auth-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .login-fallback { position: absolute; z-index: 2; top: calc(100% + 8px); right: 0; width: max-content; padding: 8px 10px; border: 1px solid var(--line); color: var(--ink); background: white; font-size: 11px; font-weight: 700; box-shadow: 0 3px 10px rgba(0,0,0,.12); }
 .primary-nav { color: white; background: #202020; }
+.identity-login-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f4f4f2; }
+.identity-login-card { width: min(440px, 100%); padding: 32px; border-top: 5px solid var(--red); background: white; box-shadow: 0 18px 60px rgba(0,0,0,.18); }
+.identity-login-brand { font-family: Georgia, serif; font-size: 20px; font-weight: 700; }
+.identity-login-card h1 { margin: 26px 0 8px; font-family: Georgia, serif; font-size: 30px; }
+.identity-login-card > p { margin: 0 0 22px; color: var(--muted); }
+.identity-login-card form, .identity-login-card label { display: grid; gap: 9px; }
+.identity-login-card label { font-size: 13px; font-weight: 700; }
+.identity-login-card input { width: 100%; padding: 12px; border: 1px solid var(--line); font: inherit; }
+.identity-login-card button { margin-top: 18px; padding: 12px; border: 0; color: white; background: #202020; font-weight: 700; cursor: pointer; }
+.identity-login-card .identity-login-error { color: var(--red); }
 .nav-scroll { height: 48px; display: flex; align-items: center; justify-content: center; gap: clamp(17px, 2.2vw, 35px); overflow-x: auto; font-size: 13px; font-weight: 700; white-space: nowrap; }
 .ticker { border-bottom: 1px solid var(--line); background: #f5f5f5; }
 .ticker-inner { min-height: 50px; display: flex; align-items: center; gap: 0; overflow-x: auto; }
