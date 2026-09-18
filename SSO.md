@@ -49,10 +49,10 @@ flowchart LR
     end
 
     subgraph Broker[orypoc.test broker]
-        LoginHandler[/oauth2/login]
-        FlowBroker[/oauth2/identity-login]
-        ConsentHandler[/oauth2/consent]
-        LogoutHandler[/oauth2/logout]
+        LoginHandler["/oauth2/login"]
+        FlowBroker["/oauth2/identity-login"]
+        ConsentHandler["/oauth2/consent"]
+        LogoutHandler["/oauth2/logout"]
         Ticket[Encrypted browser-flow ticket]
         CentralSession[(Central identity cookie)]
     end
