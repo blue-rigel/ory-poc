@@ -54,9 +54,9 @@ export function LoginControl() {
       ) return;
 
       finish();
+      child.postMessage({ type: "bt:login-ack", nonce }, location.origin);
       setStatus("Login complete. Refreshing the page.");
-      child.close();
-      location.reload();
+      window.setTimeout(() => location.reload(), 150);
     };
 
     window.addEventListener("message", receiveCompletion);

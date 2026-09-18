@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     return response;
   }
 
-  const script = `if(window.opener){window.opener.postMessage({type:"st:login-complete",attempt:${JSON.stringify(attempt)}},${JSON.stringify(PUBLIC_ORIGIN)});window.close()}else{location.replace("/")}`;
+  const script = `if(window.opener){const origin=${JSON.stringify(PUBLIC_ORIGIN)};const attempt=${JSON.stringify(attempt)};const send=()=>window.opener&&window.opener.postMessage({type:"st:login-complete",attempt},origin);const onMessage=event=>{if(event.origin===origin&&event.source===window.opener&&event.data?.type==="st:login-ack"&&event.data?.attempt===attempt){clearInterval(retry);window.removeEventListener("message",onMessage);window.close()}};window.addEventListener("message",onMessage);send();const retry=setInterval(send,150);setTimeout(()=>{clearInterval(retry);window.close()},3000)}else{location.replace("/")}`;
   const response = new NextResponse(
     `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Completing login</title></head><body><p>Login complete. This window will close.</p><script>${script}</script><noscript><a href="/">Return to The Straits Times</a></noscript></body></html>`,
     {

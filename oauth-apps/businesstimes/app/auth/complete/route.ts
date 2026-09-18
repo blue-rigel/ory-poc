@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   const valid = Boolean(session?.user && nonce && expectedNonce && nonce === expectedNonce);
 
   const script = valid
-    ? `if(window.opener){window.opener.postMessage({type:"bt:login-complete",nonce:${JSON.stringify(nonce)}},${JSON.stringify(PUBLIC_ORIGIN)});window.close()}else{location.replace("/")}`
+    ? `if(window.opener){const origin=${JSON.stringify(PUBLIC_ORIGIN)};const nonce=${JSON.stringify(nonce)};const send=()=>window.opener&&window.opener.postMessage({type:"bt:login-complete",nonce},origin);const onMessage=event=>{if(event.origin===origin&&event.source===window.opener&&event.data?.type==="bt:login-ack"&&event.data?.nonce===nonce){clearInterval(retry);window.removeEventListener("message",onMessage);window.close()}};window.addEventListener("message",onMessage);send();const retry=setInterval(send,150);setTimeout(()=>{clearInterval(retry);window.close()},3000)}else{location.replace("/")}`
     : `location.replace("/?authError=login")`;
 
   const response = new NextResponse(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Completing login</title></head><body><p>${valid ? "Login complete. This window will close." : "Login could not be verified. Returning to the site."}</p><script>${script}</script><noscript><a href="/">Return to The Business Times</a></noscript></body></html>`, {

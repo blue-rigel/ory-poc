@@ -59,9 +59,9 @@ export function LoginButton() {
 
       finished = true;
       cleanUp();
-      popup.close();
+      popup.postMessage({ type: "st:login-ack", attempt }, window.location.origin);
       setStatus("Login complete. Refreshing the page.");
-      window.location.reload();
+      window.setTimeout(() => window.location.reload(), 150);
     };
     window.addEventListener("message", onMessage);
     const closedTimer = window.setInterval(() => {
