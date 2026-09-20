@@ -2,7 +2,10 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:
 
 export type LoginTicket = {
   challenge: string;
-  clientOrigin: "https://straitstimes.test" | "https://businesstimes.test";
+  clientOrigin:
+    | "https://ory.the-blue-rigel.com"
+    | "https://straitstimes.test"
+    | "https://businesstimes.test";
   csrfCookie: string;
   csrfToken: string;
   expiresAt: number;

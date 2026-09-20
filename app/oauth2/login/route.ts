@@ -4,14 +4,15 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { ORY_ISSUER } from "@/auth";
 import { assertOryRedirect, PORTAL_ORIGIN } from "@/lib/auth-urls";
-import { sealLoginTicket } from "@/lib/login-ticket";
+import { sealLoginTicket, type LoginTicket } from "@/lib/login-ticket";
 import { oryIdentityAdmin, oryOAuthAdmin } from "@/lib/ory-admin";
 
 const CHALLENGE_PATTERN = /^[A-Za-z0-9._~+/=-]{16,8192}$/;
 const REMEMBER_FOR_SECONDS = 72 * 60 * 60;
 const CHALLENGE_COOKIE = "ory_oauth_login_challenge";
 const HANDOFF_COOKIE = "ory_oauth_login_handoff";
-const CLIENT_ORIGINS: Record<string, "https://straitstimes.test" | "https://businesstimes.test"> = {
+const CLIENT_ORIGINS: Record<string, LoginTicket["clientOrigin"]> = {
+  "1e544c88-30ba-4fae-b858-029f1124d8c9": PORTAL_ORIGIN,
   "c1d1b90a-9604-4038-b15f-7f38e316a640": "https://straitstimes.test",
   "6cf2b9d8-aa5c-408f-bff4-3132b5344936": "https://businesstimes.test",
 };
