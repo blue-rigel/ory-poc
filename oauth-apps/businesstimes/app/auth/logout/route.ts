@@ -3,7 +3,7 @@ import { getToken } from "next-auth/jwt";
 import { issuer, signOut } from "../../../auth";
 
 const PUBLIC_ORIGIN = "https://businesstimes.test";
-const PORTAL_ORIGIN = "https://orypoc.test";
+const PORTAL_ORIGIN = "https://ory.the-blue-rigel.com";
 
 export async function POST(request: NextRequest) {
   const home = new URL("/", PUBLIC_ORIGIN);

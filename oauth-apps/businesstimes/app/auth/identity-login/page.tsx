@@ -15,7 +15,7 @@ export default async function IdentityLoginPage({ searchParams }: LoginPageProps
         <h1 id="identity-login-title">Log in</h1>
         <p>Sign in with your SPH account.</p>
         {error && <p className="identity-login-error" role="alert">{error}</p>}
-        <form action="https://orypoc.test/oauth2/identity-login" method="post">
+        <form action="https://ory.the-blue-rigel.com/oauth2/identity-login" method="post">
           <input type="hidden" name="ticket" value={ticket} />
           <input type="hidden" name="stage" value={stage} />
           {stage === "identifier" ? (

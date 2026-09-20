@@ -13,8 +13,8 @@ export default async function LoginPage(props: OryPageParams) {
     let safeReturnTo: string | undefined;
     if (returnTo) {
       try {
-        const target = new URL(returnTo, "https://orypoc.test");
-        if (target.origin === "https://orypoc.test") safeReturnTo = target.toString();
+        const target = new URL(returnTo, "https://ory.the-blue-rigel.com");
+        if (target.origin === "https://ory.the-blue-rigel.com") safeReturnTo = target.toString();
       } catch {
         safeReturnTo = undefined;
       }

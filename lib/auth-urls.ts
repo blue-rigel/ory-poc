@@ -1,6 +1,6 @@
 import { ORY_ISSUER } from "@/auth";
 
-export const PORTAL_ORIGIN = "https://orypoc.test";
+export const PORTAL_ORIGIN = "https://ory.the-blue-rigel.com";
 
 export function safeReturnPath(value: string | null, fallback = "/") {
   if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;

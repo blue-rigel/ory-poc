@@ -154,20 +154,20 @@ services:
         - /ui/consent
         - /ui/welcome
         - /ui/sessions
-        - https://orypoc.test/auth/error
-        - https://orypoc.test/auth/login
-        - https://orypoc.test/auth/google/callback
-        - https://orypoc.test/auth/logout
-        - https://orypoc.test/auth/recovery
-        - https://orypoc.test/auth/settings
-        - https://orypoc.test/auth/registration
-        - https://orypoc.test/auth/verification
-        - https://orypoc.test/sensitive
-        - https://orypoc.test/oauth2/login
+        - https://ory.the-blue-rigel.com/auth/error
+        - https://ory.the-blue-rigel.com/auth/login
+        - https://ory.the-blue-rigel.com/auth/google/callback
+        - https://ory.the-blue-rigel.com/auth/logout
+        - https://ory.the-blue-rigel.com/auth/recovery
+        - https://ory.the-blue-rigel.com/auth/settings
+        - https://ory.the-blue-rigel.com/auth/registration
+        - https://ory.the-blue-rigel.com/auth/verification
+        - https://ory.the-blue-rigel.com/sensitive
+        - https://ory.the-blue-rigel.com/oauth2/login
         default_browser_return_url: /session
         flows:
           error:
-            ui_url: https://orypoc.test/auth/error
+            ui_url: https://ory.the-blue-rigel.com/auth/error
           login:
             after:
               code:
@@ -190,7 +190,7 @@ services:
             before:
               hooks: []
             style: identifier_first
-            ui_url: https://orypoc.test/auth/login
+            ui_url: https://ory.the-blue-rigel.com/auth/login
           logout:
             after: {}
           recovery:
@@ -200,7 +200,7 @@ services:
               hooks: []
             enabled: true
             notify_unknown_recipients: false
-            ui_url: https://orypoc.test/auth/recovery
+            ui_url: https://ory.the-blue-rigel.com/auth/recovery
             use: code
           registration:
             after:
@@ -228,7 +228,7 @@ services:
             enable_legacy_one_step: true
             login_hints: true
             style: unified
-            ui_url: https://orypoc.test/auth/registration
+            ui_url: https://ory.the-blue-rigel.com/auth/registration
           settings:
             after:
               hooks: []
@@ -252,7 +252,7 @@ services:
               hooks: []
             privileged_session_max_age: 15m0s
             required_aal: highest_available
-            ui_url: https://orypoc.test/auth/settings
+            ui_url: https://ory.the-blue-rigel.com/auth/settings
           verification:
             after:
               hooks: []
@@ -260,7 +260,7 @@ services:
               hooks: []
             enabled: true
             notify_unknown_recipients: false
-            ui_url: https://orypoc.test/auth/verification
+            ui_url: https://ory.the-blue-rigel.com/auth/verification
             use: code
         methods:
           b2b:
@@ -284,7 +284,7 @@ services:
           lookup_secret: {}
           oidc:
             config:
-              base_redirect_uri: https://orypoc.test/
+              base_redirect_uri: https://ory.the-blue-rigel.com/
               providers:
               - account_linking_mode: confirm_with_existing_credential
                 client_id: GOOGLE-CLIENT-ID
@@ -302,9 +302,9 @@ services:
             config:
               rp:
                 display_name: IDPF
-                id: orypoc.test
+                id: ory.the-blue-rigel.com
                 origins:
-                - https://orypoc.test
+                - https://ory.the-blue-rigel.com
             enabled: true
           password:
             config: {}
@@ -318,9 +318,9 @@ services:
               passwordless: false
               rp:
                 display_name: IDPF
-                id: orypoc.test
+                id: ory.the-blue-rigel.com
                 origins:
-                - https://orypoc.test
+                - https://ory.the-blue-rigel.com
             enabled: true
       serve:
         admin:
@@ -461,15 +461,15 @@ services:
         scope: wildcard
       ttl:
         access_token: 1h0m0s
-        auth_code: 30m0s
+        auth_code: 10m0s
         id_token: 1h0m0s
         login_consent_request: 30m0s
         refresh_token: 720h0m0s
       urls:
-        consent: https://orypoc.test/oauth2/consent
+        consent: https://ory.the-blue-rigel.com/oauth2/consent
         error: /error
-        login: https://orypoc.test/oauth2/login
-        logout: https://orypoc.test/oauth2/logout
+        login: https://ory.the-blue-rigel.com/oauth2/login
+        logout: https://ory.the-blue-rigel.com/oauth2/logout
         post_logout_redirect: /oauth2/fallbacks/logout/callback
         registration: /registration
         self:

@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const REQUIRED_AAL = REQUIRED_AAL_ROUTES.sensitive;
-const SENSITIVE_RETURN_TO = "https://orypoc.test/sensitive";
+const SENSITIVE_RETURN_TO = "https://ory.the-blue-rigel.com/sensitive";
 const STEP_UP_URL = `/self-service/login/browser?refresh=true&aal=aal2&return_to=${encodeURIComponent(SENSITIVE_RETURN_TO)}`;
 
 type PageState =
