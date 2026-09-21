@@ -70,10 +70,8 @@ async function continueWithKratos(
 async function continueWithAppLogin(
   challenge: string,
   clientOrigin: LoginTicket["clientOrigin"],
-  cookie: string,
 ) {
   const login = await frontend.createBrowserLoginFlow({
-    cookie,
     returnTo: `${PORTAL_ORIGIN}/oauth2/login`,
   });
   const csrfNode = login.data.ui.nodes.find(({ attributes }) =>
@@ -90,16 +88,27 @@ async function continueWithAppLogin(
     throw new Error("Ory did not return login CSRF state.");
   }
 
+  const socialProviders = login.data.ui.nodes.flatMap(({ attributes, group }) =>
+    group === "oidc" &&
+    attributes.node_type === "input" &&
+    attributes.name === "provider" &&
+    typeof attributes.value === "string"
+      ? [attributes.value]
+      : []
+  );
   const url = new URL("/auth/identity-login", clientOrigin);
-  url.searchParams.set("ticket", sealLoginTicket({
+  const ticket: LoginTicket = {
     challenge,
     clientOrigin,
     csrfCookie,
     csrfToken,
     expiresAt: Date.now() + 5 * 60_000,
     flowId: login.data.id,
-  }));
+    socialProviders,
+  };
+  url.searchParams.set("ticket", sealLoginTicket(ticket));
   url.searchParams.set("stage", "identifier");
+  for (const provider of socialProviders) url.searchParams.append("provider", provider);
   return NextResponse.redirect(url);
 }
 
@@ -145,9 +154,9 @@ export async function GET(request: NextRequest) {
           ? APP_LOGIN_ORIGINS.get(loginRequest.client.client_id)
           : undefined;
         if (clientOrigin && !aal2Required) {
-          return continueWithAppLogin(challenge, clientOrigin, cookie);
+          return await continueWithAppLogin(challenge, clientOrigin);
         }
-        return continueWithKratos(challenge, loginRequest.client?.client_id, aal2Required);
+        return await continueWithKratos(challenge, loginRequest.client?.client_id, aal2Required);
       }
     } else if (subject) {
       const { data: identity } = await oryIdentityAdmin.getIdentity({ id: subject });

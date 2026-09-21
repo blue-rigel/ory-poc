@@ -19,7 +19,9 @@ export default async function IdentityLoginPage({ searchParams }: LoginPageProps
           <>
             <form action="https://ory.the-blue-rigel.com/oauth2/identity-login" method="post">
               <input type="hidden" name="ticket" value={ticket} />
-              <button className="identity-social-button" type="submit" name="provider" value="google-LFODuB-8">
+              <input type="hidden" name="stage" value="social" />
+              <input type="hidden" name="provider" value="google" />
+              <button className="identity-social-button" type="submit">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path fill="#4285f4" d="M21.6 12.2c0-.7-.1-1.5-.2-2.2H12v4.3h5.4a4.7 4.7 0 0 1-2 3v2.8h3.4c2-1.9 2.8-4.6 2.8-7.9Z" />
                   <path fill="#34a853" d="M12 22c2.8 0 5.2-.9 6.9-2.5l-3.4-2.7c-.9.6-2.1 1-3.5 1a6.1 6.1 0 0 1-5.7-4.2H2.8v2.8A10.4 10.4 0 0 0 12 22Z" />

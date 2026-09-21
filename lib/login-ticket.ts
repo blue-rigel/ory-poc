@@ -8,6 +8,7 @@ export type LoginTicket = {
   expiresAt: number;
   flowId: string;
   identifier?: string;
+  socialProviders?: string[];
 };
 
 function key() {

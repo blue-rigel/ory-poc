@@ -16,6 +16,9 @@ function redirectToForm(ticket: LoginTicket, stage: "identifier" | "password", e
   const url = new URL("/auth/identity-login", ticket.clientOrigin);
   url.searchParams.set("ticket", sealLoginTicket({ ...ticket, expiresAt: Date.now() + 5 * 60_000 }));
   url.searchParams.set("stage", stage);
+  for (const provider of ticket.socialProviders ?? []) {
+    url.searchParams.append("provider", provider);
+  }
   if (error) url.searchParams.set("error", error);
   return NextResponse.redirect(url, 303);
 }
@@ -33,13 +36,17 @@ function message(flow?: LoginFlow) {
 
 function browserRedirect(error: unknown) {
   if (!isAxiosError(error)) return;
-  const value = (error.response?.data as { redirect_browser_to?: unknown } | undefined)
-    ?.redirect_browser_to;
+  const data = error.response?.data as {
+    error?: { id?: unknown };
+    redirect_browser_to?: unknown;
+  } | undefined;
+  if (data?.error?.id !== "browser_location_change_required") return;
+  const value = data.redirect_browser_to;
   if (typeof value !== "string") return;
 
   const redirect = new URL(value);
   const issuerOrigin = new URL(ORY_ISSUER).origin;
-  const allowedOrigins = new Set([issuerOrigin, PORTAL_ORIGIN]);
+  const allowedOrigins = new Set([issuerOrigin, PORTAL_ORIGIN, "https://accounts.google.com"]);
   if (!allowedOrigins.has(redirect.origin)) return;
   if (redirect.origin === issuerOrigin) {
     return new URL(`${redirect.pathname}${redirect.search}${redirect.hash}`, PORTAL_ORIGIN);
@@ -75,13 +82,19 @@ export async function POST(request: NextRequest) {
         id: ticket.flowId,
         cookie: ticket.csrfCookie,
       });
-      const providerAvailable = flow.ui.nodes.some(({ attributes, group }) =>
+      const availableProviders = flow.ui.nodes.flatMap(({ attributes, group }) =>
         group === "oidc" &&
         attributes.node_type === "input" &&
         attributes.name === "provider" &&
-        attributes.value === provider
+        typeof attributes.value === "string"
+          ? [attributes.value]
+          : []
       );
-      if (!providerAvailable) {
+      const resolvedProvider = availableProviders.find((available) =>
+        available === provider ||
+        (provider === "google" && available.toLowerCase().startsWith("google-"))
+      );
+      if (!resolvedProvider) {
         return redirectToForm(ticket, "identifier", "This social login provider is unavailable.");
       }
 
@@ -92,7 +105,7 @@ export async function POST(request: NextRequest) {
           updateLoginFlowBody: {
             csrf_token: ticket.csrfToken,
             method: "oidc",
-            provider,
+            provider: resolvedProvider,
           },
         });
       } catch (error) {
