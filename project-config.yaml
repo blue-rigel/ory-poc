@@ -155,7 +155,7 @@ services:
         - /ui/welcome
         - /ui/sessions
         - https://ory.the-blue-rigel.com/auth/error
-        - https://ory.the-blue-rigel.com/auth/login
+        - https://ory.the-blue-rigel.com/login
         - https://ory.the-blue-rigel.com/auth/google/callback
         - https://ory.the-blue-rigel.com/auth/logout
         - https://ory.the-blue-rigel.com/auth/recovery
@@ -190,7 +190,7 @@ services:
             before:
               hooks: []
             style: identifier_first
-            ui_url: https://ory.the-blue-rigel.com/auth/login
+            ui_url: https://ory.the-blue-rigel.com/login
           logout:
             after: {}
           recovery:

@@ -1,21 +1,20 @@
-import { FrontendApi, Configuration, type UiNodeInputAttributes } from "@ory/client";
+import { FrontendApi, Configuration } from "@ory/client";
 import { isAxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 import { ORY_ISSUER } from "@/auth";
 import { assertOryRedirect, PORTAL_ORIGIN } from "@/lib/auth-urls";
-import { sealLoginTicket, type LoginTicket } from "@/lib/login-ticket";
 import { oryIdentityAdmin, oryOAuthAdmin } from "@/lib/ory-admin";
 
 const CHALLENGE_PATTERN = /^[A-Za-z0-9._~+/=-]{16,8192}$/;
 const REMEMBER_FOR_SECONDS = 72 * 60 * 60;
 const CHALLENGE_COOKIE = "ory_oauth_login_challenge";
 const HANDOFF_COOKIE = "ory_oauth_login_handoff";
-const CLIENT_ORIGINS: Record<string, LoginTicket["clientOrigin"]> = {
-  "1e544c88-30ba-4fae-b858-029f1124d8c9": PORTAL_ORIGIN,
-  "c1d1b90a-9604-4038-b15f-7f38e316a640": "https://straitstimes.test",
-  "6cf2b9d8-aa5c-408f-bff4-3132b5344936": "https://businesstimes.test",
-};
+const LOGIN_CLIENT_IDS = new Set([
+  "1e544c88-30ba-4fae-b858-029f1124d8c9",
+  "c1d1b90a-9604-4038-b15f-7f38e316a640",
+  "6cf2b9d8-aa5c-408f-bff4-3132b5344936",
+]);
 
 function clearChallenge(response: NextResponse) {
   const expiredCookie = {
@@ -35,36 +34,14 @@ async function continueWithKratos(
   clientId: string | undefined,
   aal2Required: boolean,
 ) {
-  const clientOrigin = clientId ? CLIENT_ORIGINS[clientId] : undefined;
-  if (!clientOrigin || aal2Required) return failure("unsupported_login_client");
+  if (!clientId || !LOGIN_CLIENT_IDS.has(clientId) || aal2Required) {
+    return failure("unsupported_login_client");
+  }
 
-  const frontend = new FrontendApi(new Configuration({ basePath: ORY_ISSUER }));
-  const { data: flow, headers } = await frontend.createBrowserLoginFlow({
-    returnTo: `${PORTAL_ORIGIN}/oauth2/login`,
-  });
-  const csrfCookie = (headers["set-cookie"] ?? [])
-    .map((header) => header.split(";", 1)[0])
-    .find((cookie) => cookie.startsWith("csrf_token_"));
-  const csrfTokenNode = flow.ui.nodes.find((node) => {
-    if (node.type !== "input") return false;
-    return (node.attributes as UiNodeInputAttributes).name === "csrf_token";
-  });
-  const csrfAttributes = csrfTokenNode?.attributes as UiNodeInputAttributes | undefined;
-  const csrfToken = typeof csrfAttributes?.value === "string"
-    ? csrfAttributes.value
-    : undefined;
-  if (!csrfCookie || !csrfToken) return failure("login_flow_failed");
-
-  const login = new URL("/auth/identity-login", clientOrigin);
-  login.searchParams.set("stage", "identifier");
-  login.searchParams.set("ticket", sealLoginTicket({
-    challenge,
-    clientOrigin,
-    csrfCookie,
-    csrfToken,
-    expiresAt: Date.now() + 5 * 60_000,
-    flowId: flow.id,
-  }));
+  // Start the flow in the browser so Ory can set its CSRF/session cookies and
+  // render the configured login UI, including OIDC social-provider buttons.
+  const login = new URL("/self-service/login/browser", ORY_ISSUER);
+  login.searchParams.set("return_to", `${PORTAL_ORIGIN}/oauth2/login`);
 
   const response = NextResponse.redirect(login);
   response.cookies.set(CHALLENGE_COOKIE, challenge, {
