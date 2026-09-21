@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { ORY_ISSUER } from "@/auth";
 import { assertOryRedirect, PORTAL_ORIGIN } from "@/lib/auth-urls";
+import { sealLoginTicket, type LoginTicket } from "@/lib/login-ticket";
 import { oryIdentityAdmin, oryOAuthAdmin } from "@/lib/ory-admin";
 
 const CHALLENGE_PATTERN = /^[A-Za-z0-9._~+/=-]{16,8192}$/;
@@ -15,6 +16,11 @@ const LOGIN_CLIENT_IDS = new Set([
   "c1d1b90a-9604-4038-b15f-7f38e316a640",
   "6cf2b9d8-aa5c-408f-bff4-3132b5344936",
 ]);
+const APP_LOGIN_ORIGINS = new Map<string, LoginTicket["clientOrigin"]>([
+  ["c1d1b90a-9604-4038-b15f-7f38e316a640", "https://st-oauthapp.vercel.app"],
+  ["6cf2b9d8-aa5c-408f-bff4-3132b5344936", "https://businesstimes.test"],
+]);
+const frontend = new FrontendApi(new Configuration({ basePath: ORY_ISSUER }));
 
 function clearChallenge(response: NextResponse) {
   const expiredCookie = {
@@ -40,7 +46,7 @@ async function continueWithKratos(
 
   // Start the flow in the browser so Ory can set its CSRF/session cookies and
   // render the configured login UI, including OIDC social-provider buttons.
-  const login = new URL("/self-service/login/browser", ORY_ISSUER);
+  const login = new URL("/self-service/login/browser", PORTAL_ORIGIN);
   login.searchParams.set("return_to", `${PORTAL_ORIGIN}/oauth2/login`);
 
   const response = NextResponse.redirect(login);
@@ -61,6 +67,39 @@ async function continueWithKratos(
   return response;
 }
 
+async function continueWithAppLogin(
+  challenge: string,
+  clientOrigin: LoginTicket["clientOrigin"],
+  cookie: string,
+) {
+  const login = await frontend.createBrowserLoginFlow({ cookie });
+  const csrfNode = login.data.ui.nodes.find(({ attributes }) =>
+    attributes.node_type === "input" && attributes.name === "csrf_token"
+  );
+  const csrfToken = csrfNode?.attributes.node_type === "input"
+    ? csrfNode.attributes.value
+    : undefined;
+  const csrfCookie = (login.headers["set-cookie"] ?? [])
+    .map((header) => header.split(";", 1)[0])
+    .find((header) => header.startsWith("csrf_token_"));
+
+  if (typeof csrfToken !== "string" || !csrfCookie) {
+    throw new Error("Ory did not return login CSRF state.");
+  }
+
+  const url = new URL("/auth/identity-login", clientOrigin);
+  url.searchParams.set("ticket", sealLoginTicket({
+    challenge,
+    clientOrigin,
+    csrfCookie,
+    csrfToken,
+    expiresAt: Date.now() + 5 * 60_000,
+    flowId: login.data.id,
+  }));
+  url.searchParams.set("stage", "identifier");
+  return NextResponse.redirect(url);
+}
+
 function failure(reason: string) {
   const url = new URL("/oauth2/error", PORTAL_ORIGIN);
   url.searchParams.set("reason", reason);
@@ -68,9 +107,8 @@ function failure(reason: string) {
 }
 
 export async function GET(request: NextRequest) {
-  const challenge =
-    request.nextUrl.searchParams.get("login_challenge") ??
-    request.cookies.get(CHALLENGE_COOKIE)?.value;
+  const challengeCookie = request.cookies.get(CHALLENGE_COOKIE)?.value;
+  const challenge = request.nextUrl.searchParams.get("login_challenge") ?? challengeCookie;
   if (!challenge || !CHALLENGE_PATTERN.test(challenge)) {
     return clearChallenge(failure("invalid_challenge"));
   }
@@ -85,7 +123,6 @@ export async function GET(request: NextRequest) {
     if (!loginRequest.skip) {
       const cookie = request.headers.get("cookie") ?? "";
       try {
-        const frontend = new FrontendApi(new Configuration({ basePath: ORY_ISSUER }));
         const { data: session } = await frontend.toSession({ cookie });
         subject = session.identity?.id;
         const traits = session.identity?.traits as Record<string, unknown> | undefined;
@@ -98,8 +135,14 @@ export async function GET(request: NextRequest) {
           : undefined;
         const aal2Required = errorId === "session_aal2_required";
 
-        if (request.cookies.has(HANDOFF_COOKIE)) {
+        if (request.cookies.has(HANDOFF_COOKIE) && challengeCookie === challenge) {
           return clearChallenge(failure("session_handoff_failed"));
+        }
+        const clientOrigin = loginRequest.client?.client_id
+          ? APP_LOGIN_ORIGINS.get(loginRequest.client.client_id)
+          : undefined;
+        if (clientOrigin && !aal2Required) {
+          return continueWithAppLogin(challenge, clientOrigin, cookie);
         }
         return continueWithKratos(challenge, loginRequest.client?.client_id, aal2Required);
       }

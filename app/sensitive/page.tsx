@@ -60,7 +60,7 @@ export default function SensitivePage() {
       <div className="w-1/2 m-auto mt-16 text-center">
         <p className="text-muted-foreground mb-4">You are not logged in.</p>
         <Button asChild>
-          <Link href={`/login?return_to=${encodeURIComponent(SENSITIVE_RETURN_TO)}`}>Log in</Link>
+          <Link href={`/auth/login?return_to=${encodeURIComponent(SENSITIVE_RETURN_TO)}`}>Log in</Link>
         </Button>
       </div>
     );

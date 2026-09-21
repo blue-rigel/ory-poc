@@ -16,5 +16,5 @@ export default async function RegistrationPage(props: OryPageParams) {
     return null;
   }
 
-  return <FlowCard flowType="registration" ui={flow.ui} title="Create account" description="Register with Ory to continue." footer={{ href: "/login", label: "Already have an account? Log in" }} />;
+  return <FlowCard flowType="registration" ui={flow.ui} title="Create account" description="Register with Ory to continue." footer={{ href: "/auth/login", label: "Already have an account? Log in" }} />;
 }

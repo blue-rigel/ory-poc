@@ -4,15 +4,16 @@ cors_admin:
 cors_public:
   enabled: false
   origins: []
-environment: dev
+environment: prod
 home_region: asia-northeast
 id: 3d4fe10b-927f-4abb-bb19-14fe4fd82866
 name: SPH PoC
 organizations: []
-revision_id: b5e0c077-0278-4c54-a655-98952cdd1193
+revision_id: b1c9c67e-3105-40ad-86d3-9f2f0161f111
 services:
   account_experience:
     config:
+      contact_url: ""
       default_locale: en
       enabled: true
       enabled_locales:
@@ -33,6 +34,8 @@ services:
       locale_behavior: respect_accept_language
       logo_dark_url: ""
       logo_light_url: ""
+      privacy_policy_url: ""
+      terms_of_service_url: ""
       theme_variables_dark: {}
       theme_variables_light: {}
       translations: {}
@@ -75,7 +78,7 @@ services:
         same_site: Lax
       courier:
         smtp:
-          from_name: IDPF via Ory
+          from_name: SPH PoC via Ory
         templates:
           login_code:
             valid:
@@ -129,11 +132,14 @@ services:
         cacheable_sessions_max_age: 2m30s
         choose_recovery_address: true
         faster_session_extend: true
+        legacy_allow_insecure_origins: true
         legacy_continue_with_verification_ui: false
         legacy_oidc_registration_node_group: false
         legacy_require_verified_login_error: false
         password_profile_registration_node_group: default
+        refresh_login_choose_address: false
         use_continue_with_transitions: true
+        webhook_response_directives: false
       identity:
         default_schema_id: preset://email
         schemas:
@@ -154,17 +160,17 @@ services:
         - /ui/consent
         - /ui/welcome
         - /ui/sessions
-        - https://ory.the-blue-rigel.com/auth/error
-        - https://ory.the-blue-rigel.com/login
         - https://st-oauthapp.vercel.app
-        - https://ory.the-blue-rigel.com/auth/google/callback
+        - https://ory.the-blue-rigel.com/sensitive
+        - https://ory.the-blue-rigel.com/auth/error
+        - https://ory.the-blue-rigel.com/auth/login
         - https://ory.the-blue-rigel.com/auth/logout
+        - https://ory.the-blue-rigel.com/oauth2/login
         - https://ory.the-blue-rigel.com/auth/recovery
         - https://ory.the-blue-rigel.com/auth/settings
         - https://ory.the-blue-rigel.com/auth/registration
         - https://ory.the-blue-rigel.com/auth/verification
-        - https://ory.the-blue-rigel.com/sensitive
-        - https://ory.the-blue-rigel.com/oauth2/login
+        - https://ory.the-blue-rigel.com/auth/google/callback
         default_browser_return_url: /session
         flows:
           error:
@@ -190,8 +196,9 @@ services:
                 hooks: []
             before:
               hooks: []
+            lifespan: 30m0s
             style: identifier_first
-            ui_url: https://ory.the-blue-rigel.com/login
+            ui_url: https://ory.the-blue-rigel.com/auth/login
           logout:
             after: {}
           recovery:
@@ -200,6 +207,7 @@ services:
             before:
               hooks: []
             enabled: true
+            lifespan: 30m0s
             notify_unknown_recipients: false
             ui_url: https://ory.the-blue-rigel.com/auth/recovery
             use: code
@@ -227,6 +235,8 @@ services:
             before:
               hooks: []
             enable_legacy_one_step: true
+            enabled: true
+            lifespan: 30m0s
             login_hints: true
             style: unified
             ui_url: https://ory.the-blue-rigel.com/auth/registration
@@ -251,6 +261,7 @@ services:
                 hooks: []
             before:
               hooks: []
+            lifespan: 30m0s
             privileged_session_max_age: 15m0s
             required_aal: highest_available
             ui_url: https://ory.the-blue-rigel.com/auth/settings
@@ -260,6 +271,7 @@ services:
             before:
               hooks: []
             enabled: true
+            lifespan: 30m0s
             notify_unknown_recipients: false
             ui_url: https://ory.the-blue-rigel.com/auth/verification
             use: code
@@ -269,20 +281,33 @@ services:
               organizations: []
           captcha:
             config:
+              allowed_domains:
+              - cranky-bose-9s8hbv5let.projects.oryapis.com
+              - cranky-bose-9s8hbv5let.projects.console.ory.com
+              - cranky-bose-9s8hbv5let.projects.console.ory.sh
+              - orypoc.local
               legacy_inject_node: false
               provider: cf-turnstile
             enabled: false
           code:
             config:
+              lifespan: 15m0s
               max_submissions: 5
               missing_credential_fallback_enabled: true
+            enabled: true
+            mfa_enabled: false
             passwordless_enabled: true
-          deviceauthn: {}
+            passwordless_login_fallback_enabled: false
+          deviceauthn:
+            config: {}
+            enabled: false
           link:
             config:
               base_url: ""
+              lifespan: 15m0s
             enabled: true
-          lookup_secret: {}
+          lookup_secret:
+            enabled: false
           oidc:
             config:
               base_redirect_uri: https://ory.the-blue-rigel.com/
@@ -308,8 +333,19 @@ services:
                 - https://ory.the-blue-rigel.com
             enabled: true
           password:
-            config: {}
-          profile: {}
+            config:
+              haveibeenpwned_enabled: true
+              identifier_similarity_check_enabled: true
+              ignore_network_errors: true
+              max_breaches: 1
+              min_password_length: 8
+            enabled: true
+          profile:
+            enabled: true
+          saml:
+            config:
+              providers: []
+            enabled: false
           totp:
             config:
               issuer: IDPF
@@ -339,6 +375,7 @@ services:
           domain: cranky-bose-9s8hbv5let.projects.oryapis.com
           name: ory_session_crankybose9s8hbv5let
           path: /
+          persistent: false
           same_site: Lax
         lifespan: 72h0m0s
         whoami:
@@ -352,11 +389,14 @@ services:
           disallow_private_ip_ranges: true
           private_ip_exception_urls: []
       dev: true
+      feature_flags:
+        legacy_allow_insecure_origins: true
       hsm:
         enabled: false
       oauth2:
         client_credentials:
           default_grant_allowed_scope: false
+        device_authorization: {}
         exclude_not_before_claim: false
         expose_internal_errors: true
         grant:
@@ -364,7 +404,10 @@ services:
             iat_optional: false
             jti_optional: false
             max_ttl: 720h0m0s
+            omit_assertion_audience: false
           refresh_token: {}
+        grant_types_disabled:
+        - urn:ietf:params:oauth:grant-type:device_code
         hashers:
           algorithm: pbkdf2
           pbkdf2:
@@ -468,6 +511,9 @@ services:
         refresh_token: 720h0m0s
       urls:
         consent: https://ory.the-blue-rigel.com/oauth2/consent
+        device:
+          success: /device/success
+          verification: /device
         error: /error
         login: https://ory.the-blue-rigel.com/oauth2/login
         logout: https://ory.the-blue-rigel.com/oauth2/logout
@@ -486,6 +532,8 @@ services:
           userinfo_url: https://cranky-bose-9s8hbv5let.projects.oryapis.com/userinfo
   permission:
     config:
+      feature_flags:
+        strict_mode: true
       namespaces: []
 slug: cranky-bose-9s8hbv5let
 state: running

@@ -8,7 +8,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Lock, LogIn, Monitor, ShieldCheck, Users, Network } from "lucide-react";
+import { Lock, LogIn, Monitor, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
 
 export default async function Home() {
@@ -68,22 +68,6 @@ export default async function Home() {
                   <div className="font-medium">Step-up Auth Demo</div>
                   <div className="text-sm text-muted-foreground">
                     AAL2-gated route with live assessment panel
-                  </div>
-                </div>
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="outline"
-              className="h-14 justify-start gap-3 text-left bg-transparent"
-            >
-              <Link href="/sso/app-a">
-                <Network className="h-5 w-5 text-cyan-600" />
-                <div>
-                  <div className="font-medium">SSO Demo (App A / App B)</div>
-                  <div className="text-sm text-muted-foreground">
-                    Provider SSO with an independent session in each app
                   </div>
                 </div>
               </Link>

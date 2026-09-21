@@ -53,7 +53,7 @@ export function FlowCard({ flowType, ui, title, description, footer }: FlowCardP
               nodeGroups.map(([group, nodes]) => (
                 <form
                   key={group}
-                  action={ui.action}
+                  action={proxiedOryUrl(ui.action)}
                   method={ui.method}
                   className="space-y-4 rounded-lg border p-4"
                 >
@@ -69,7 +69,7 @@ export function FlowCard({ flowType, ui, title, description, footer }: FlowCardP
                 </form>
               ))
             ) : (
-              <form action={ui.action} method={ui.method} className="space-y-6">
+              <form action={proxiedOryUrl(ui.action)} method={ui.method} className="space-y-6">
                 {ui.nodes.map((node, index) => (
                   <FlowNode key={`${node.group}-${index}`} node={node as UiNode} />
                 ))}
@@ -144,7 +144,7 @@ function FlowNode({ node }: { node: UiNode }) {
       const attributes = node.attributes as UiNodeAnchorAttributes;
       return (
         <Button asChild variant="outline" className="w-full">
-          <a href={attributes.href}>{attributes.title.text}</a>
+          <a href={proxiedOryUrl(attributes.href)}>{attributes.title.text}</a>
         </Button>
       );
     }
@@ -154,7 +154,7 @@ function FlowNode({ node }: { node: UiNode }) {
         // Ory supplies QR codes as data URLs or trusted flow assets.
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={attributes.src}
+          src={proxiedOryUrl(attributes.src)}
           width={attributes.width}
           height={attributes.height}
           alt={node.meta.label?.text ?? "Authentication QR code"}
@@ -299,4 +299,20 @@ function runTrigger(name: string) {
   if (typeof trigger === "function") {
     trigger();
   }
+}
+
+function proxiedOryUrl(value: string) {
+  try {
+    const url = new URL(value);
+    if (
+      url.pathname.startsWith("/self-service/") ||
+      url.pathname.startsWith("/.well-known/ory/")
+    ) {
+      return `${url.pathname}${url.search}${url.hash}`;
+    }
+  } catch {
+    // Relative URLs already use the current application origin.
+  }
+
+  return value;
 }

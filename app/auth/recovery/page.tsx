@@ -16,5 +16,5 @@ export default async function RecoveryPage(props: OryPageParams) {
     return null;
   }
 
-  return <FlowCard flowType="recovery" ui={flow.ui} title="Recover account" description="Use your email or recovery code to regain access." footer={{ href: "/login", label: "Back to login" }} />;
+  return <FlowCard flowType="recovery" ui={flow.ui} title="Recover account" description="Use your email or recovery code to regain access." footer={{ href: "/auth/login", label: "Back to login" }} />;
 }

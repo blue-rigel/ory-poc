@@ -65,7 +65,7 @@ export function ErrorCard({ errorId }: ErrorCardProps) {
         </CardContent>
         <CardFooter className="gap-3">
           <Button asChild>
-            <Link href="/login">Try again</Link>
+            <Link href="/auth/login">Try again</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/">Back to home</Link>

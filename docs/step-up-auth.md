@@ -104,7 +104,7 @@ own flows. Instead, the app does its own **static per-route AAL assessment**:
 - [`app/login/page.tsx`](../app/login/page.tsx) renders both normal password
   login nodes and the TOTP nodes returned by an AAL2 browser flow. The step-up
   button starts `/self-service/login/browser?refresh=true&aal=aal2`; Ory keeps
-  the existing cookie session, redirects back to `/login?flow=...`, and then
+  the existing cookie session, redirects back to `/auth/login?flow=...`, and then
   returns the user to the requested application route after verification.
 
 ## Manual test script
