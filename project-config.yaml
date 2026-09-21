@@ -156,6 +156,7 @@ services:
         - /ui/sessions
         - https://ory.the-blue-rigel.com/auth/error
         - https://ory.the-blue-rigel.com/login
+        - https://st-oauthapp.vercel.app
         - https://ory.the-blue-rigel.com/auth/google/callback
         - https://ory.the-blue-rigel.com/auth/logout
         - https://ory.the-blue-rigel.com/auth/recovery

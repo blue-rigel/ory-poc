@@ -4,7 +4,7 @@ import { auth } from "../../../auth";
 
 const ATTEMPT_COOKIE = "st-login-attempt";
 const ATTEMPT_PATTERN = /^[a-f0-9]{48}$/;
-const PUBLIC_ORIGIN = "https://straitstimes.test";
+const PUBLIC_ORIGIN = "https://st-oauthapp.vercel.app";
 
 export async function GET(request: NextRequest) {
   const attempt = request.nextUrl.searchParams.get("attempt");

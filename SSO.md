@@ -16,7 +16,7 @@ The implementation has these user-facing rules:
 | Domain | Responsibility | Session |
 | --- | --- | --- |
 | `https://orypoc.test` | Ory browser-flow broker and OAuth login, consent, and logout handlers | Central Ory identity session |
-| `https://straitstimes.test` | The Straits Times application and branded popup form | ST Auth.js session |
+| `https://st-oauthapp.vercel.app` | The Straits Times application and branded popup form | ST Auth.js session |
 | `https://businesstimes.test` | The Business Times application and branded popup form | BT Auth.js session |
 | Ory Network issuer | OAuth2/OIDC provider and identity APIs | Remembered OAuth login session |
 
@@ -41,7 +41,7 @@ flowchart LR
     User[User browser]
 
     subgraph Apps[OAuth applications]
-        ST[straitstimes.test]
+        ST[st-oauthapp.vercel.app]
         BT[businesstimes.test]
         AppForm[App-hosted login form]
         AuthJS[Auth.js callback]
@@ -162,7 +162,7 @@ sequenceDiagram
 
 The form is rendered at the origin that initiated login:
 
-- `https://straitstimes.test/auth/identity-login`
+- `https://st-oauthapp.vercel.app/auth/identity-login`
 - `https://businesstimes.test/auth/identity-login`
 
 The pages render only the supported identifier-first password flow. They do not render arbitrary Ory scripts, anchors, or provider-controlled HTML.
@@ -259,7 +259,7 @@ The custom `/oauth2/logout` handler accepts trusted logout challenges, so Ory's 
 Post-logout redirects use only these registered HTTPS origins:
 
 - `https://orypoc.test/`
-- `https://straitstimes.test/`
+- `https://st-oauthapp.vercel.app/`
 - `https://businesstimes.test/`
 
 ## Required Ory Configuration

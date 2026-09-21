@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["straitstimes.test"],
+  allowedDevOrigins: ["st-oauthapp.vercel.app"],
   reactStrictMode: true,
 };
 

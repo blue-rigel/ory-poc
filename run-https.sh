@@ -19,7 +19,7 @@ ORY_TUNNEL_PID=$!
 CERT_DIR=.cert
 CERT_FILE="$CERT_DIR/oauth-apps.test.pem"
 KEY_FILE="$CERT_DIR/oauth-apps.test-key.pem"
-DOMAINS=(orypoc.test straitstimes.test businesstimes.test)
+DOMAINS=(orypoc.test st-oauthapp.vercel.app businesstimes.test)
 
 mkdir -p "$CERT_DIR"
 
@@ -50,7 +50,7 @@ HTTPS_PROXY_PID=$!
 
 printf '\nLocal apps are starting:\n'
 printf '  https://orypoc.test\n'
-printf '  https://straitstimes.test\n'
+printf '  https://st-oauthapp.vercel.app\n'
 printf '  https://businesstimes.test\n\n'
 
 wait "$HTTPS_PROXY_PID"

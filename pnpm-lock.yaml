@@ -137,29 +137,29 @@ importers:
   oauth-apps/straitstimes:
     dependencies:
       next:
-        specifier: 'catalog:'
+        specifier: 16.2.9
         version: 16.2.9(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       next-auth:
         specifier: 5.0.0-beta.32
         version: 5.0.0-beta.32(next@16.2.9(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
       react:
-        specifier: 'catalog:'
+        specifier: 19.2.4
         version: 19.2.4
       react-dom:
-        specifier: 'catalog:'
+        specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
     devDependencies:
       '@types/node':
-        specifier: 'catalog:'
+        specifier: ^20
         version: 20.19.43
       '@types/react':
-        specifier: 'catalog:'
+        specifier: ^19
         version: 19.2.17
       '@types/react-dom':
-        specifier: 'catalog:'
+        specifier: ^19
         version: 19.2.3(@types/react@19.2.17)
       typescript:
-        specifier: 'catalog:'
+        specifier: ^5
         version: 5.9.3
 
 packages:

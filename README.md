@@ -70,7 +70,7 @@ Configure the applications as follows:
 | Application | Redirect URI | Front-channel logout URI | Post-logout URI |
 | --- | --- | --- | --- |
 | Portal | `https://orypoc.test/api/auth/callback/ory` | `https://orypoc.test/api/auth/frontchannel-logout` | `https://orypoc.test/` |
-| Straits Times | `https://straitstimes.test/api/auth/callback/ory` | `https://straitstimes.test/api/auth/frontchannel-logout` | `https://straitstimes.test/` |
+| Straits Times | `https://st-oauthapp.vercel.app/api/auth/callback/ory` | `https://st-oauthapp.vercel.app/api/auth/frontchannel-logout` | `https://st-oauthapp.vercel.app/` |
 | Business Times | `https://businesstimes.test/api/auth/callback/ory` | `https://businesstimes.test/api/auth/frontchannel-logout` | `https://businesstimes.test/` |
 
 Use the Authorization Code grant, the `code` response type, HTTP Basic client

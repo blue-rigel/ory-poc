@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { issuer, signOut } from "../../../auth";
 
-const PUBLIC_ORIGIN = "https://straitstimes.test";
+const PUBLIC_ORIGIN = "https://st-oauthapp.vercel.app";
 const PORTAL_ORIGIN = "https://ory.the-blue-rigel.com";
 
 export async function POST(request: NextRequest) {

@@ -4,7 +4,7 @@ import httpProxy from "http-proxy";
 
 const routes = new Map([
   ["orypoc.test", "http://127.0.0.1:3000"],
-  ["straitstimes.test", "http://127.0.0.1:3001"],
+  ["st-oauthapp.vercel.app", "http://127.0.0.1:3001"],
   ["businesstimes.test", "http://127.0.0.1:3002"],
 ]);
 
