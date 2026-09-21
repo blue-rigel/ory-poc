@@ -3,11 +3,13 @@ import { isAxiosError } from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 import { ORY_ISSUER } from "@/auth";
-import { assertOryRedirect } from "@/lib/auth-urls";
+import { assertOryRedirect, PORTAL_ORIGIN } from "@/lib/auth-urls";
 import { openLoginTicket, sealLoginTicket, type LoginTicket } from "@/lib/login-ticket";
 import { oryOAuthAdmin } from "@/lib/ory-admin";
 
 const REMEMBER_FOR_SECONDS = 72 * 60 * 60;
+const CHALLENGE_COOKIE = "ory_oauth_login_challenge";
+const HANDOFF_COOKIE = "ory_oauth_login_handoff";
 const frontend = new FrontendApi(new Configuration({ basePath: ORY_ISSUER }));
 
 function redirectToForm(ticket: LoginTicket, stage: "identifier" | "password", error?: string) {
@@ -29,6 +31,33 @@ function message(flow?: LoginFlow) {
     ?? flow?.ui.nodes.flatMap(({ messages }) => messages).find(({ type }) => type === "error")?.text;
 }
 
+function browserRedirect(error: unknown) {
+  if (!isAxiosError(error)) return;
+  const value = (error.response?.data as { redirect_browser_to?: unknown } | undefined)
+    ?.redirect_browser_to;
+  if (typeof value !== "string") return;
+
+  const redirect = new URL(value);
+  const issuerOrigin = new URL(ORY_ISSUER).origin;
+  const allowedOrigins = new Set([issuerOrigin, PORTAL_ORIGIN]);
+  if (!allowedOrigins.has(redirect.origin)) return;
+  if (redirect.origin === issuerOrigin) {
+    return new URL(`${redirect.pathname}${redirect.search}${redirect.hash}`, PORTAL_ORIGIN);
+  }
+  return redirect;
+}
+
+function setCookiePair(response: NextResponse, pair: string) {
+  const separator = pair.indexOf("=");
+  if (separator < 1) return;
+  response.cookies.set(pair.slice(0, separator), pair.slice(separator + 1), {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+  });
+}
+
 export async function POST(request: NextRequest) {
   const form = await request.formData();
   const ticketValue = form.get("ticket");
@@ -38,7 +67,63 @@ export async function POST(request: NextRequest) {
     const ticket = openLoginTicket(ticketValue);
     const identifier = form.get("identifier");
     const password = form.get("password");
+    const provider = form.get("provider");
     const stage = form.get("stage");
+
+    if (typeof provider === "string") {
+      const { data: flow } = await frontend.getLoginFlow({
+        id: ticket.flowId,
+        cookie: ticket.csrfCookie,
+      });
+      const providerAvailable = flow.ui.nodes.some(({ attributes, group }) =>
+        group === "oidc" &&
+        attributes.node_type === "input" &&
+        attributes.name === "provider" &&
+        attributes.value === provider
+      );
+      if (!providerAvailable) {
+        return redirectToForm(ticket, "identifier", "This social login provider is unavailable.");
+      }
+
+      try {
+        await frontend.updateLoginFlow({
+          flow: ticket.flowId,
+          cookie: ticket.csrfCookie,
+          updateLoginFlowBody: {
+            csrf_token: ticket.csrfToken,
+            method: "oidc",
+            provider,
+          },
+        });
+      } catch (error) {
+        if (!isAxiosError(error)) throw error;
+        const redirect = browserRedirect(error);
+        if (!redirect) throw error;
+
+        const response = NextResponse.redirect(redirect, 303);
+        setCookiePair(response, ticket.csrfCookie);
+        for (const header of error.response?.headers["set-cookie"] ?? []) {
+          setCookiePair(response, header.split(";", 1)[0]);
+        }
+        response.cookies.set(CHALLENGE_COOKIE, ticket.challenge, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          path: "/oauth2",
+          maxAge: 10 * 60,
+        });
+        response.cookies.set(HANDOFF_COOKIE, "1", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          path: "/oauth2",
+          maxAge: 10 * 60,
+        });
+        return response;
+      }
+
+      throw new Error("Ory did not start social login.");
+    }
 
     if (stage === "identifier" && typeof identifier === "string" && identifier) {
       try {

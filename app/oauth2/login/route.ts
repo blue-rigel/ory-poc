@@ -72,7 +72,10 @@ async function continueWithAppLogin(
   clientOrigin: LoginTicket["clientOrigin"],
   cookie: string,
 ) {
-  const login = await frontend.createBrowserLoginFlow({ cookie });
+  const login = await frontend.createBrowserLoginFlow({
+    cookie,
+    returnTo: `${PORTAL_ORIGIN}/oauth2/login`,
+  });
   const csrfNode = login.data.ui.nodes.find(({ attributes }) =>
     attributes.node_type === "input" && attributes.name === "csrf_token"
   );

@@ -42,6 +42,10 @@ button { font: inherit; }
 .identity-login-card label { color: var(--blue); font-size: 13px; font-weight: 700; }
 .identity-login-card input { width: 100%; padding: 12px; border: 1px solid var(--line); font: inherit; }
 .identity-login-card button { margin-top: 18px; padding: 12px; border: 0; color: white; background: var(--blue); font-weight: 700; cursor: pointer; }
+.identity-login-card .identity-social-button { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; margin-top: 0; border: 1px solid var(--line); color: var(--ink); background: white; }
+.identity-social-button svg { width: 20px; height: 20px; }
+.identity-login-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--muted); font-size: 12px; text-transform: uppercase; }
+.identity-login-divider::before, .identity-login-divider::after { content: ""; height: 1px; flex: 1; background: var(--line); }
 .identity-login-card .identity-login-error { color: var(--red); }
 .main-nav { border-block: 1px solid var(--line); }
 .nav-scroll { height: 46px; display: flex; align-items: center; justify-content: center; gap: clamp(20px, 3vw, 42px); overflow-x: auto; font-family: Georgia, serif; font-size: 15px; font-weight: 700; }
