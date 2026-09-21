@@ -54,15 +54,32 @@ function browserRedirect(error: unknown) {
   return redirect;
 }
 
-function setCookiePair(response: NextResponse, pair: string) {
+function appendOryCookie(response: NextResponse, pair: string) {
   const separator = pair.indexOf("=");
   if (separator < 1) return;
-  response.cookies.set(pair.slice(0, separator), pair.slice(separator + 1), {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
-  });
+  const name = pair.slice(0, separator);
+  if (!name.startsWith("csrf_token_") &&
+      !name.startsWith("ory_kratos_") &&
+      !name.startsWith("ory_session_")) return;
+
+  // Ory secure-cookie values contain Base64 padding. NextResponse.cookies.set
+  // percent-encodes that padding, which makes Ory unable to resume the flow.
+  response.headers.append(
+    "Set-Cookie",
+    `${pair}; Path=/; HttpOnly; Secure; SameSite=Lax`,
+  );
+}
+
+function appendBrokerCookie(
+  response: NextResponse,
+  name: string,
+  value: string,
+  maxAge: number,
+) {
+  response.headers.append(
+    "Set-Cookie",
+    `${name}=${value}; Path=/oauth2; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax`,
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -114,24 +131,12 @@ export async function POST(request: NextRequest) {
         if (!redirect) throw error;
 
         const response = NextResponse.redirect(redirect, 303);
-        setCookiePair(response, ticket.csrfCookie);
+        appendOryCookie(response, ticket.csrfCookie);
         for (const header of error.response?.headers["set-cookie"] ?? []) {
-          setCookiePair(response, header.split(";", 1)[0]);
+          appendOryCookie(response, header.split(";", 1)[0]);
         }
-        response.cookies.set(CHALLENGE_COOKIE, ticket.challenge, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "lax",
-          path: "/oauth2",
-          maxAge: 10 * 60,
-        });
-        response.cookies.set(HANDOFF_COOKIE, "1", {
-          httpOnly: true,
-          secure: true,
-          sameSite: "lax",
-          path: "/oauth2",
-          maxAge: 10 * 60,
-        });
+        appendBrokerCookie(response, CHALLENGE_COOKIE, ticket.challenge, 10 * 60);
+        appendBrokerCookie(response, HANDOFF_COOKIE, "1", 10 * 60);
         return response;
       }
 
@@ -195,25 +200,10 @@ export async function POST(request: NextRequest) {
     });
     const response = NextResponse.redirect(assertOryRedirect(data.redirect_to), 303);
     for (const header of login.headers["set-cookie"] ?? []) {
-      const [pair] = header.split(";");
-      const separator = pair.indexOf("=");
-      const name = pair.slice(0, separator);
-      if (!name.startsWith("ory_session_") && !name.startsWith("csrf_token_")) continue;
-      response.cookies.set(name, pair.slice(separator + 1), {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        path: "/",
-      });
+      appendOryCookie(response, header.split(";", 1)[0]);
     }
     for (const name of ["ory_oauth_login_challenge", "ory_oauth_login_handoff"]) {
-      response.cookies.set(name, "", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        path: "/oauth2",
-        maxAge: 0,
-      });
+      appendBrokerCookie(response, name, "", 0);
     }
     return response;
   } catch {
