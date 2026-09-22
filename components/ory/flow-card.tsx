@@ -164,10 +164,13 @@ function FlowNode({ node }: { node: UiNode }) {
     }
     case "script": {
       const attributes = node.attributes as UiNodeScriptAttributes;
+      const src = selfHostedOryScriptUrl(attributes.src);
+      if (!src) return null;
+
       return (
         <Script
           id={attributes.id}
-          src={attributes.src}
+          src={src}
           async={attributes.async}
           crossOrigin={attributes.crossorigin as React.ScriptHTMLAttributes<HTMLScriptElement>["crossOrigin"]}
           integrity={attributes.integrity}
@@ -315,4 +318,15 @@ function proxiedOryUrl(value: string) {
   }
 
   return value;
+}
+
+function selfHostedOryScriptUrl(value: string) {
+  const proxied = proxiedOryUrl(value);
+
+  try {
+    new URL(proxied);
+    return null;
+  } catch {
+    return proxied;
+  }
 }
